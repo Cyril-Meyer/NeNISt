@@ -1,2 +1,2 @@
 # NeNISt
-Neural Networks based Image Segmentation toolkit for Electron Microscopy
+Neural Networks (Deep Learning) based Image Segmentation toolkit for Electron Microscopy
