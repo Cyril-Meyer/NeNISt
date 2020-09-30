@@ -127,3 +127,26 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Pesro
+# PyCharm
+.idea
+
+# Jupyter
+.ipynb_checkpoints
+
+# Python cache
+__pycache__
+
+# HPC sbatch
+create_sbatch.ipynb
+I_2021*
+
+# Figures
+data/*.pdf
+data/*.ps
+
+# Results data
+results
+results_hpc
+
