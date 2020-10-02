@@ -148,5 +148,5 @@ data/*.ps
 
 # Results data
 results
-results_hpc
+results_*
 
