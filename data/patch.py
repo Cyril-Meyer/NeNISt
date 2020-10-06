@@ -297,6 +297,76 @@ def predict_slice_one_hot_tos_area_p(patch_size, image, model, lambdas=[]):
     return prediction
 
 
+def get_patches_batch_slice_one_hot_tos_area(patch_size, image, lambdas=[]):
+    current_image = np.expand_dims(image, -1)
+    prediction_stride = patch_size // 3
+    
+    pad_y0 = patch_size
+    pad_y1 = patch_size
+    pad_x0 = patch_size
+    pad_x1 = patch_size
+    
+    pad_y0 += 0 if (current_image.shape[0] % prediction_stride == 0) else math.floor((prediction_stride - current_image.shape[0] % prediction_stride)/2)
+    pad_y1 += 0 if (current_image.shape[0] % prediction_stride == 0) else math.ceil((prediction_stride - current_image.shape[0] % prediction_stride)/2)
+    pad_x0 += 0 if (current_image.shape[1] % prediction_stride == 0) else math.floor((prediction_stride - current_image.shape[1] % prediction_stride)/2)
+    pad_x1 += 0 if (current_image.shape[1] % prediction_stride == 0) else math.ceil((prediction_stride - current_image.shape[1] % prediction_stride)/2)
+
+    current_image_padded = sk.util.pad(current_image, pad_width=((pad_y0,pad_y1),(pad_x0, pad_x1),(0,0)), mode='symmetric')
+    
+    batch_size = (current_image_padded.shape[0] // prediction_stride) * (current_image_padded.shape[1] // prediction_stride)
+    patches_batch = np.zeros((batch_size,patch_size,patch_size,len(lambdas)+1))
+    prediction_image = np.zeros((current_image_padded.shape[0], current_image_padded.shape[1]), dtype=image.dtype)
+        
+    # deconstruct
+    p = 0
+    for y in range(0, current_image_padded.shape[0]-patch_size-1, prediction_stride):
+        for x in range(0, current_image_padded.shape[1]-patch_size-1, prediction_stride):
+            patches_batch[p, :, :, 0] = current_image_padded[y:y+patch_size,x:x+patch_size,0]
+            p = p + 1
+    
+    # tos aera convert
+    if not lambdas == []:
+        patches_batch = patches_batch_tos_area(patches_batch, batch_size, lambdas)
+    
+    return patches_batch
+
+
+def predict_slice_one_hot_from_patches_batch(patch_size, image, model, patches_batch):
+    current_image = np.expand_dims(image, -1)
+    prediction_stride = patch_size // 3
+    
+    pad_y0 = patch_size
+    pad_y1 = patch_size
+    pad_x0 = patch_size
+    pad_x1 = patch_size
+    
+    pad_y0 += 0 if (current_image.shape[0] % prediction_stride == 0) else math.floor((prediction_stride - current_image.shape[0] % prediction_stride)/2)
+    pad_y1 += 0 if (current_image.shape[0] % prediction_stride == 0) else math.ceil((prediction_stride - current_image.shape[0] % prediction_stride)/2)
+    pad_x0 += 0 if (current_image.shape[1] % prediction_stride == 0) else math.floor((prediction_stride - current_image.shape[1] % prediction_stride)/2)
+    pad_x1 += 0 if (current_image.shape[1] % prediction_stride == 0) else math.ceil((prediction_stride - current_image.shape[1] % prediction_stride)/2)
+
+    current_image_padded = sk.util.pad(current_image, pad_width=((pad_y0,pad_y1),(pad_x0, pad_x1),(0,0)), mode='symmetric')
+    prediction_image = np.zeros((current_image_padded.shape[0], current_image_padded.shape[1]), dtype=image.dtype)
+    
+    # predict
+    prediction_patches_batch = model.predict(patches_batch)
+    n_label = prediction_patches_batch.shape[-1]
+    patches_batch = np.argmax(prediction_patches_batch, axis=-1)
+    
+    # reconstruct
+    ps = prediction_stride
+    p = 0
+    for y in range(0, current_image_padded.shape[0]-patch_size-1, prediction_stride):
+        for x in range(0, current_image_padded.shape[1]-patch_size-1, prediction_stride):
+            prediction_patch = patches_batch[p]
+            p = p + 1
+            prediction_image[y+ps:y+2*ps,x+ps:x+2*ps] = prediction_patch[ps:2*ps,ps:2*ps]
+    
+    prediction = prediction_image[pad_y0:pad_y0+current_image.shape[0],pad_x0:pad_x0+current_image.shape[1]]
+    
+    return prediction
+
+
 # 2.5D Patches
 def gen_patches_batch_augmented_25d_label_indexes_one_hot(patch_size, image, label, label_indexes, batch_size=32, z_slices=3):
     # valid z_slices is odd
@@ -369,7 +439,7 @@ def predict_slice_one_hot_25d(patch_size, image, model, z_slices):
     current_image_padded = np.zeros((z_slices, current_image[0].shape[0]+pad_y0+pad_y1, current_image[0].shape[1]+pad_x0+pad_x1,1))
     
     for z in range(z_slices):
-        current_image_padded[z] = skimage.util.pad(current_image[z], pad_width=((pad_y0,pad_y1),(pad_x0, pad_x1),(0,0)), mode='symmetric')
+        current_image_padded[z] = sk.util.pad(current_image[z], pad_width=((pad_y0,pad_y1),(pad_x0, pad_x1),(0,0)), mode='symmetric')
     
     batch_size = (current_image_padded.shape[1] // prediction_stride) * (current_image_padded.shape[2] // prediction_stride)
     patches_batch = np.zeros((batch_size,patch_size,patch_size,z_d2*2+1))
