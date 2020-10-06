@@ -1,30 +1,36 @@
 import tensorflow as tf
 
 
-def EfficientNet_to_EfficientUNet(model, classes, weight_name='imagenet'):
+def EfficientNet_to_EfficientUNet(model, classes):
     # input 8x8, output 16x16
     output_level_6 = tf.keras.Model.get_layer(model, 'top_activation').output
     decoder_level_6_up = tf.keras.layers.UpSampling2D()(output_level_6)
     decoder_level_6_out = decoder_level_6_up
     
     # input AxA, output 2*Ax2*A
-    output_level_5 = tf.keras.Model.get_layer(model, 'block5a_expand_activation').output
+    output_level_5 = tf.keras.Model.get_layer(model, 'block6a_expand_activation').output
     decoder_level_5_concat = tf.keras.layers.concatenate([decoder_level_6_out, output_level_5], axis=3)
-    decoder_level_5_conv_1 = tf.keras.layers.Conv2D(64, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_5_concat)
+    decoder_level_5_conv_1 = tf.keras.layers.Conv2D(512, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_5_concat)
+    decoder_level_5_conv_1 = tf.keras.layers.BatchNormalization()(decoder_level_5_conv_1)
+    decoder_level_5_conv_1 = tf.keras.layers.Activation('relu')(decoder_level_5_conv_1)
     decoder_level_5_up = tf.keras.layers.UpSampling2D()(decoder_level_5_conv_1)
     decoder_level_5_out = decoder_level_5_up
     
     # input BxB, output 2*Bx2*B, B=2*A
     output_level_4 = tf.keras.Model.get_layer(model, 'block4a_expand_activation').output
     decoder_level_4_concat = tf.keras.layers.concatenate([decoder_level_5_out, output_level_4], axis=3)
-    decoder_level_4_conv_1 = tf.keras.layers.Conv2D(64, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_4_concat)
+    decoder_level_4_conv_1 = tf.keras.layers.Conv2D(256, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_4_concat)
+    decoder_level_4_conv_1 = tf.keras.layers.BatchNormalization()(decoder_level_4_conv_1)
+    decoder_level_4_conv_1 = tf.keras.layers.Activation('relu')(decoder_level_4_conv_1)
     decoder_level_4_up = tf.keras.layers.UpSampling2D()(decoder_level_4_conv_1)
     decoder_level_4_out = decoder_level_4_up
     
     # input CxC, output 2*Cx2*C, C=2*B
     output_level_3 = tf.keras.Model.get_layer(model, 'block3a_expand_activation').output
     decoder_level_3_concat = tf.keras.layers.concatenate([decoder_level_4_out, output_level_3], axis=3)
-    decoder_level_3_conv_1 = tf.keras.layers.Conv2D(64, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_3_concat)
+    decoder_level_3_conv_1 = tf.keras.layers.Conv2D(128, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_3_concat)
+    decoder_level_3_conv_1 = tf.keras.layers.BatchNormalization()(decoder_level_3_conv_1)
+    decoder_level_3_conv_1 = tf.keras.layers.Activation('relu')(decoder_level_3_conv_1)
     decoder_level_3_up = tf.keras.layers.UpSampling2D()(decoder_level_3_conv_1)
     decoder_level_3_out = decoder_level_3_up
     
@@ -32,14 +38,19 @@ def EfficientNet_to_EfficientUNet(model, classes, weight_name='imagenet'):
     output_level_2 = tf.keras.Model.get_layer(model, 'block2a_expand_activation').output
     decoder_level_2_concat = tf.keras.layers.concatenate([decoder_level_3_out, output_level_2], axis=3)
     decoder_level_2_conv_1 = tf.keras.layers.Conv2D(64, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_2_concat)
+    decoder_level_2_conv_1 = tf.keras.layers.BatchNormalization()(decoder_level_2_conv_1)
+    decoder_level_2_conv_1 = tf.keras.layers.Activation('relu')(decoder_level_2_conv_1)
     decoder_level_2_up = tf.keras.layers.UpSampling2D()(decoder_level_2_conv_1)
     decoder_level_2_out = decoder_level_2_up
     
     # input ExE, output ExE, E=D*A
     # output_level_1 = tf.keras.Model.get_layer(model, 'normalization_').output
-    output_level_1 = model.layers[2].output
-    decoder_level_1_concat = tf.keras.layers.concatenate([decoder_level_2_out, output_level_1], axis=3)
-    decoder_level_1_conv_1 = tf.keras.layers.Conv2D(64, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_1_concat)
+    # output_level_1 = model.layers[2].output
+    # decoder_level_1_concat = tf.keras.layers.concatenate([decoder_level_2_out, output_level_1], axis=3)
+    # decoder_level_1_conv_1 = tf.keras.layers.Conv2D(64, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_1_concat)
+    decoder_level_1_conv_1 = tf.keras.layers.Conv2D(32, kernel_size=(3,3), padding='same', activation='relu')(decoder_level_2_out)
+    decoder_level_1_conv_1 = tf.keras.layers.BatchNormalization()(decoder_level_1_conv_1)
+    decoder_level_1_conv_1 = tf.keras.layers.Activation('relu')(decoder_level_1_conv_1)
     decoder_level_1_out = tf.keras.layers.Conv2D(classes, (1), padding='same', activation='softmax')(decoder_level_1_conv_1)
     
     return tf.keras.Model(model.input, decoder_level_1_out)
@@ -59,7 +70,7 @@ def EfficientUNetB0(input_shape, classes, weight_name='imagenet'):
     classifier_activation=None
     )
     
-    EfficientUNetB0 = EfficientNet_to_EfficientUNet(EfficientNetB0, classes, weight_name='imagenet')
+    EfficientUNetB0 = EfficientNet_to_EfficientUNet(EfficientNetB0, classes)
     
     if input_shape[-1] != 3:
             model_input = tf.keras.Input(shape=input_shape)
@@ -84,7 +95,7 @@ def EfficientUNetB1(input_shape, classes, weight_name='imagenet'):
     classifier_activation=None
     )
     
-    EfficientUNetB1 = EfficientNet_to_EfficientUNet(EfficientNetB1, classes, weight_name='imagenet')
+    EfficientUNetB1 = EfficientNet_to_EfficientUNet(EfficientNetB1, classes)
     
     if input_shape[-1] != 3:
             model_input = tf.keras.Input(shape=input_shape)
@@ -109,7 +120,7 @@ def EfficientUNetB2(input_shape, classes, weight_name='imagenet'):
     classifier_activation=None
     )
     
-    EfficientUNetB2 = EfficientNet_to_EfficientUNet(EfficientNetB2, classes, weight_name='imagenet')
+    EfficientUNetB2 = EfficientNet_to_EfficientUNet(EfficientNetB2, classes)
     
     if input_shape[-1] != 3:
             model_input = tf.keras.Input(shape=input_shape)
@@ -134,7 +145,7 @@ def EfficientUNetB3(input_shape, classes, weight_name='imagenet'):
     classifier_activation=None
     )
     
-    EfficientUNetB3 = EfficientNet_to_EfficientUNet(EfficientNetB3, classes, weight_name='imagenet')
+    EfficientUNetB3 = EfficientNet_to_EfficientUNet(EfficientNetB3, classes)
     
     if input_shape[-1] != 3:
             model_input = tf.keras.Input(shape=input_shape)
@@ -159,7 +170,7 @@ def EfficientUNetB4(input_shape, classes, weight_name='imagenet'):
     classifier_activation=None
     )
     
-    EfficientUNetB4 = EfficientNet_to_EfficientUNet(EfficientNetB4, classes, weight_name='imagenet')
+    EfficientUNetB4 = EfficientNet_to_EfficientUNet(EfficientNetB4, classes)
     
     if input_shape[-1] != 3:
             model_input = tf.keras.Input(shape=input_shape)
@@ -184,7 +195,7 @@ def EfficientUNetB5(input_shape, classes, weight_name='imagenet'):
     classifier_activation=None
     )
     
-    EfficientUNetB5 = EfficientNet_to_EfficientUNet(EfficientNetB5, classes, weight_name='imagenet')
+    EfficientUNetB5 = EfficientNet_to_EfficientUNet(EfficientNetB5, classes)
     
     if input_shape[-1] != 3:
             model_input = tf.keras.Input(shape=input_shape)
@@ -209,7 +220,7 @@ def EfficientUNetB6(input_shape, classes, weight_name='imagenet'):
     classifier_activation=None
     )
     
-    EfficientUNetB6 = EfficientNet_to_EfficientUNet(EfficientNetB6, classes, weight_name='imagenet')
+    EfficientUNetB6 = EfficientNet_to_EfficientUNet(EfficientNetB6, classes)
     
     if input_shape[-1] != 3:
             model_input = tf.keras.Input(shape=input_shape)
@@ -234,7 +245,7 @@ def EfficientUNetB7(input_shape, classes, weight_name='imagenet'):
     classifier_activation=None
     )
     
-    EfficientUNetB7 = EfficientNet_to_EfficientUNet(EfficientNetB7, classes, weight_name='imagenet')
+    EfficientUNetB7 = EfficientNet_to_EfficientUNet(EfficientNetB7, classes)
 
     if input_shape[-1] != 3:
             model_input = tf.keras.Input(shape=input_shape)
