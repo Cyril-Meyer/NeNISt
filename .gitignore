@@ -142,14 +142,15 @@ __pycache__
 create_sbatch.ipynb
 I_2021*
 
-# Figures
+# Figures & Figures folder
 data/*.pdf
 data/*.ps
+figures
 
 # Results data
 results
 results_*
 
-# Figures folder
-figures
+# Old script and files
+__old__
 
