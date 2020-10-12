@@ -150,3 +150,6 @@ data/*.ps
 results
 results_*
 
+# Figures folder
+figures
+
