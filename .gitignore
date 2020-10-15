@@ -150,6 +150,7 @@ figures
 # Results data
 results
 results_*
+merge_csv.ipynb
 
 # Old script and files
 __old__
