@@ -472,3 +472,55 @@ def predict_slice_one_hot_25d(patch_size, image, model, z_slices):
     prediction = prediction_image[pad_y0:pad_y0+current_image.shape[1],pad_x0:pad_x0+current_image.shape[2]]
     
     return prediction
+
+
+def gen_patches_batch_augmented_morpho_label_indexes_one_hot(patch_size, image, label, label_indexes, operators, selems, batch_size=32):
+    if len(operators) != len(selems):
+        print("ERROR : gen_patches_batch_augmented_morpho_label_indexes_one_hot : operators and selems length")
+        return
+    n_label = label[0].shape[-1]
+    label_indexes_iter = []
+    for cla in range(len(label_indexes)):
+        np.random.shuffle(label_indexes[cla])
+        label_indexes_iter.append(itertools.cycle(label_indexes[cla]))
+    batch_image = np.zeros((batch_size, patch_size, patch_size, 1+len(operators)))
+    batch_label = np.zeros((batch_size, patch_size, patch_size, n_label))
+    while True:
+        for i in range(batch_size):
+            # 20% of random patches
+            if randint(0,9) < 2:
+                x = randint(0, image.shape[2] - patch_size - 1)
+                y = randint(0, image.shape[1] - patch_size - 1)
+                z = randint(0, image.shape[0] - 1)
+            else:
+                cla = randint(0, len(label_indexes)-1)
+
+                z, y, x = next(label_indexes_iter[cla])
+                y = max(0, y - 1 - (patch_size // 2))
+                x = max(0, x - 1 - (patch_size // 2))
+
+                y = min(max(0, y), image.shape[1]-patch_size)
+                x = min(max(0, x), image.shape[2]-patch_size)
+            
+            batch_image[i, :, :, 0] = image[z, y:y + patch_size, x:x + patch_size]
+            for mo in range(len(operators)):
+                batch_image[i, :, :, mo+1] = operators[mo](image[z, y:y + patch_size, x:x + patch_size], selems[mo])
+            
+            batch_label[i, :, :, :] = label[z, y:y + patch_size, x:x + patch_size]
+            
+            # Augmentations
+            # random 90 degree rotation
+            # random flip
+            rot = randint(0, 3)
+            batch_image[i, :, :] = np.rot90(batch_image[i, :, :], rot)
+            batch_label[i, :, :] = np.rot90(batch_label[i, :, :], rot)
+            
+            if randint(0, 1) == 1:
+                batch_image[i, :, :] = np.fliplr(batch_image[i, :, :])
+                batch_label[i, :, :] = np.fliplr(batch_label[i, :, :])
+                
+            if randint(0, 1) == 1:
+                batch_image[i, :, :] = np.flipud(batch_image[i, :, :])
+                batch_label[i, :, :] = np.flipud(batch_label[i, :, :])
+        
+        yield batch_image, batch_label
