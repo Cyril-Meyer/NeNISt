@@ -32,7 +32,7 @@ def UNet(input_shape=(None, None, None), output_classes=2, filters=64, depth=5, 
     :param padding: type of padding "same" or "valid". If valid, output is smaller than input
     :param dropouts: dropout per conv, integer with middle value or array of size depth * 2 - 1
     :param batch_normalization: add batch normalization after convolution or not
-    :param groups: groups for convolution in contracting path
+    :param groups: groups per conv, integer with first value or array of size depth * 2 - 1
     :return: a unet-like keras model
     """
 
@@ -63,6 +63,19 @@ def UNet(input_shape=(None, None, None), output_classes=2, filters=64, depth=5, 
         print("WARNING: dropouts parameters invalid, set as default")
         dropouts = np.zeros((2 * depth - 1), dtype=np.float32)
         dropouts[depth-1] = 0.50
+    
+    if groups is None:
+        groups = np.ones((2 * depth - 1), dtype=np.uint8)
+
+    if type(groups) is float or type(groups) is int:
+        g = groups
+        groups = np.ones((2 * depth - 1), dtype=np.uint8)
+        groups[0] = g
+    
+    if (not type(groups) is list) and (not type(groups) is np.ndarray) or (len(groups) != 2 * depth - 1):
+        print(type(groups))
+        print("WARNING: groups parameters invalid, set as default")
+        groups = np.ones((2 * depth - 1), dtype=np.uint8)
 
     inputs = tf.keras.Input(input_shape, name="input")
 
@@ -73,12 +86,12 @@ def UNet(input_shape=(None, None, None), output_classes=2, filters=64, depth=5, 
 
     # Contracting path
     for i in range(depth-1):
-        X = conv_block(X, filters[i], 3, conv_per_block, padding, dropouts[i], batch_normalization, groups=groups)
+        X = conv_block(X, filters[i], 3, conv_per_block, padding, dropouts[i], batch_normalization, groups=groups[i])
         block_out.append(X)
 
         X = MaxPooling2D(pool_size=(2, 2))(X)
 
-    X = conv_block(X, filters[depth-1], 3, conv_per_block, padding, dropouts[depth-1], batch_normalization, groups=groups)
+    X = conv_block(X, filters[depth-1], 3, conv_per_block, padding, dropouts[depth-1], batch_normalization, groups=groups[depth-1])
 
     # Expansive path
     crop = 2
@@ -93,7 +106,7 @@ def UNet(input_shape=(None, None, None), output_classes=2, filters=64, depth=5, 
 
         X = concatenate([block_out[depth - i - 2], X], axis=3)
 
-        X = conv_block(X, filters[depth+i], 3, conv_per_block, padding, dropouts[depth+i], batch_normalization, groups=1)
+        X = conv_block(X, filters[depth+i], 3, conv_per_block, padding, dropouts[depth+i], batch_normalization, groups=groups[depth+i])
 
     if output_classes > 2:
         tmp = Conv2D(output_classes, 1, activation='softmax', name="output")(X)
