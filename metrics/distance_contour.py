@@ -55,3 +55,10 @@ def distance_contour_segmentation_slices(seg1, seg2):
     distances_1 = np.array(distances_1)
     distances_2 = np.array(distances_2)
     return (distances_1.mean(), distances_1.std(), distances_1.max()), (distances_2.mean(), distances_2.std(), distances_2.max())
+
+
+def print_md_distance_contour_segmentation(res):
+    (seg1_mean, seg1_std, seg1_max), (seg2_mean, seg2_std, seg2_max) = res
+    print("| mean     |", str(round(seg1_mean, 4)).ljust(16), "|", str(round(seg2_mean, 4)).ljust(16), "|")
+    print("| std      |", str(round(seg1_std, 4)).ljust(16), "|", str(round(seg2_std, 4)).ljust(16), "|")
+    print("| max      |", str(round(seg1_max, 4)).ljust(16), "|", str(round(seg2_max, 4)).ljust(16), "|")
