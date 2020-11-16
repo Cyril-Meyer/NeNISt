@@ -1,6 +1,6 @@
 # ------------------------------------------------------------ #
 #
-# File : data/preparation.py
+# File : data/preparation_ISBI_2021.py
 # Authors : CM
 # Read, check, prepare and export data.
 # - Only the annotated slices are kept.
