@@ -1,6 +1,6 @@
 # ------------------------------------------------------------ #
 #
-# File : data/preparation_LW4_9.py
+# File : data/preparation_LW4_40_9.py
 # Authors : CM
 # Read, check, prepare and export data.
 # - Only the annotated slices are kept.
@@ -80,10 +80,10 @@ check_label(lw4_label_1)
 check_label(lw4_label_2)
 check_label(lw4_label_3)
 check_label(lw4_label_4)
-check_label(lw4_label_5)
-check_label(lw4_label_6)
-check_label(lw4_label_7)
-check_label(lw4_label_8)
+# check_label(lw4_label_5)
+# check_label(lw4_label_6)
+# check_label(lw4_label_7)
+# check_label(lw4_label_8)
 check_label(lw4_label_9)
 
 
@@ -99,9 +99,9 @@ if lw4_image_normalized_f32.min() != 0 or lw4_image_normalized_f32.max() != 1:
 
 
 # Split
-train_lw4_selection = np.arange(20)
-valid_lw4_selection = np.arange(10) + 20
-test_lw4_selection = np.arange(10) + 30
+train_lw4_selection = np.arange(30) + 10
+valid_lw4_selection = np.arange(5) + 5
+test_lw4_selection = np.arange(5)
 
 train_lw4_image_normalized_f32 = lw4_image_normalized_f32[train_lw4_selection]
 train_lw4_image_normalized_f16 = lw4_image_normalized_f16[train_lw4_selection]
