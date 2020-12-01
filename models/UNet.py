@@ -5,13 +5,13 @@ from tensorflow.keras.layers import BatchNormalization, Conv2D, Cropping2D, Conv
 from tensorflow.keras.layers import Dropout, MaxPooling2D
 
 
-def conv_block(input, filters, kernel_size=3, conv_per_block=2, padding='same', dropout=0, batch_normalization=False, groups=1):
+def conv_block(input, filters, kernel_size=3, conv_per_block=2, dropout=0, batch_normalization=False, groups=1):
     # X represent the output of the previous layer
     X = input
 
     for i in range(conv_per_block):
         X = Conv2D(filters=filters, kernel_size=kernel_size,
-                   activation='relu', kernel_initializer="he_normal", padding=padding, groups=groups)(X)
+                   activation='relu', kernel_initializer="he_normal", padding='same', groups=groups)(X)
         if batch_normalization:
             X = BatchNormalization()(X)
 
@@ -22,14 +22,13 @@ def conv_block(input, filters, kernel_size=3, conv_per_block=2, padding='same', 
 
 
 def UNet(input_shape=(None, None, None), output_classes=2, filters=64, depth=5, conv_per_block=2,
-         padding='same', dropouts=0.50, batch_normalization=False, groups=1, input_conv=False):
+         dropouts=0.50, batch_normalization=False, groups=1, input_conv=False):
     """
     :param input_shape: input shape tuple
     :param output_classes: number of output classes (single output for output_classes <= 2)
     :param filters: number of filters per conv, integer with initial value or array of size depth * 2 - 1
     :param depth: number of conv block in contracting path and expansive path
     :param conv_per_block: number of convolution per level
-    :param padding: type of padding "same" or "valid". If valid, output is smaller than input
     :param dropouts: dropout per conv, integer with middle value or array of size depth * 2 - 1
     :param batch_normalization: add batch normalization after convolution or not
     :param groups: groups per conv, integer with first value or array of size depth * 2 - 1
@@ -91,27 +90,22 @@ def UNet(input_shape=(None, None, None), output_classes=2, filters=64, depth=5, 
 
     # Contracting path
     for i in range(depth-1):
-        X = conv_block(X, filters[i], 3, conv_per_block, padding, dropouts[i], batch_normalization, groups=groups[i])
+        X = conv_block(X, filters[i], 3, conv_per_block, dropouts[i], batch_normalization, groups=groups[i])
         block_out.append(X)
 
         X = MaxPooling2D(pool_size=(2, 2))(X)
 
-    X = conv_block(X, filters[depth-1], 3, conv_per_block, padding, dropouts[depth-1], batch_normalization, groups=groups[depth-1])
+    X = conv_block(X, filters[depth-1], 3, conv_per_block, dropouts[depth-1], batch_normalization, groups=groups[depth-1])
 
     # Expansive path
     crop = 2
     for i in range(depth-1):
         # X = tf.keras.layers.UpSampling2D()(X)
         X = Conv2DTranspose(filters[depth+i], 2, 2, padding='valid')(X)
-
-        if padding == 'valid':
-            block_out[depth - i - 2] = Cropping2D(crop * conv_per_block)(block_out[depth - i - 2])
-            # crop = crop * 2 + 2 * conv_per_block
-            crop = 2 * (crop +  conv_per_block)
-
+        
         X = concatenate([block_out[depth - i - 2], X], axis=3)
-
-        X = conv_block(X, filters[depth+i], 3, conv_per_block, padding, dropouts[depth+i], batch_normalization, groups=groups[depth+i])
+        
+        X = conv_block(X, filters[depth+i], 3, conv_per_block, dropouts[depth+i], batch_normalization, groups=groups[depth+i])
 
     if output_classes > 2:
         tmp = Conv2D(output_classes, 1, activation='softmax', name="output")(X)
