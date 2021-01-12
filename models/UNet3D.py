@@ -94,6 +94,7 @@ def UNet(input_shape=(None, None, None, 1), output_classes=2, output_activation=
     crop = 2
     for i in range(depth-1):
         X = UpSampling3D(pool_size[depth+i])(X)
+        # X = Conv3DTranspose(filters[depth+i], 2, 2, padding='valid')(X)
 
         X = concatenate([block_out[depth - i - 2], X], axis=4)
 
