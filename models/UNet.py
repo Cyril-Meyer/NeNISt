@@ -21,13 +21,16 @@ def conv_block(input, filters, kernel_size=3, conv_per_block=2, dropout=0, batch
     return X
 
 
-def UNet(input_shape=(None, None, None), output_classes=2, filters=64, depth=5, conv_per_block=2,
-         dropouts=0.50, batch_normalization=False, groups=1, input_conv=False):
+def UNet(input_shape=(None, None, 1), output_classes=2, output_activation='default',
+         filters=64, depth=5, conv_per_block=2,
+         dropouts=0.50, batch_normalization=True, groups=1):
     """
     :param input_shape: input shape tuple
     :param output_classes: number of output classes (single output for output_classes <= 2)
+    :param output_activation: the activation function of the last layer
     :param filters: number of filters per conv, integer with initial value or array of size depth * 2 - 1
     :param depth: number of conv block in contracting path and expansive path
+    
     :param conv_per_block: number of convolution per level
     :param dropouts: dropout per conv, integer with middle value or array of size depth * 2 - 1
     :param batch_normalization: add batch normalization after convolution or not
@@ -82,11 +85,6 @@ def UNet(input_shape=(None, None, None), output_classes=2, filters=64, depth=5, 
     block_out = []
     # X represent the previous output
     X = inputs
-    
-    if input_conv:
-        X = Conv2D(filters=input_shape[-1], kernel_size=1, activation=None)(X)
-        # X = Conv2D(filters=input_shape[-1], kernel_size=1, activation='relu', kernel_initializer="he_normal", padding="same")(X)
-
 
     # Contracting path
     for i in range(depth-1):
@@ -107,11 +105,15 @@ def UNet(input_shape=(None, None, None), output_classes=2, filters=64, depth=5, 
         
         X = conv_block(X, filters[depth+i], 3, conv_per_block, dropouts[depth+i], batch_normalization, groups=groups[depth+i])
 
-    if output_classes > 2:
-        tmp = Conv2D(output_classes, 1, activation='softmax', name="output")(X)
+    
+    if output_activation == 'default':
+        if output_classes > 2:
+            tmp = Conv2D(output_classes, 1, activation='softmax', name="output")(X)
+        else:
+            tmp = Conv2D(1, 1, activation='sigmoid', name="output")(X)
     else:
-        tmp = Conv2D(1, 1, activation='sigmoid', name="output")(X)
-
+        tmp = Conv2D(output_classes, 1, activation=output_activation, name="output")(X)
+    
     model = tf.keras.Model(inputs=inputs, outputs=tmp)
 
     return model

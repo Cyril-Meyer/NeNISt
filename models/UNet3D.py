@@ -21,7 +21,9 @@ def conv_block(input, filters, kernel_size=3, conv_per_block=2, dropout=0, batch
     return X
 
 
-def UNet(input_shape=(None, None, None, None), output_classes=2, output_activation='default', filters=64, depth=5, pool_size=(2, 2, 2), conv_per_block=2, dropouts=0.50, batch_normalization=False):
+def UNet(input_shape=(None, None, None, 1), output_classes=2, output_activation='default',
+         filters=64, depth=5, pool_size=(2, 2, 2), conv_per_block=2,
+         dropouts=0.50, batch_normalization=True):
     """
     :param input_shape: input shape tuple
     :param output_classes: number of output classes (single output for output_classes <= 2)
