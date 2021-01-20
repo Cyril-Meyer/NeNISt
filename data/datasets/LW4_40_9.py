@@ -37,7 +37,7 @@ train_label_6_indexes = np.load(DATA_FOLDER + "TRAIN_LW4_LABEL_6_INDEXES.npy")
 train_label_7_indexes = np.load(DATA_FOLDER + "TRAIN_LW4_LABEL_7_INDEXES.npy")
 train_label_8_indexes = np.load(DATA_FOLDER + "TRAIN_LW4_LABEL_8_INDEXES.npy")
 train_label_9_indexes = np.load(DATA_FOLDER + "TRAIN_LW4_LABEL_9_INDEXES.npy")
-
+'''
 valid_image_normalized_f32 = np.load(DATA_FOLDER + "VALID_LW4_IMAGE_NORMALIZED_F32.npy")
 valid_image_normalized_f16 = np.load(DATA_FOLDER + "VALID_LW4_IMAGE_NORMALIZED_F16.npy")
 valid_image_standardized_f32 = np.load(DATA_FOLDER + "VALID_LW4_IMAGE_STANDARDIZED_F32.npy")
@@ -61,7 +61,7 @@ valid_label_6_indexes = np.load(DATA_FOLDER + "VALID_LW4_LABEL_6_INDEXES.npy")
 valid_label_7_indexes = np.load(DATA_FOLDER + "VALID_LW4_LABEL_7_INDEXES.npy")
 valid_label_8_indexes = np.load(DATA_FOLDER + "VALID_LW4_LABEL_8_INDEXES.npy")
 valid_label_9_indexes = np.load(DATA_FOLDER + "VALID_LW4_LABEL_9_INDEXES.npy")
-
+'''
 test_image_normalized_f32 = np.load(DATA_FOLDER + "TEST_LW4_IMAGE_NORMALIZED_F32.npy")
 test_image_normalized_f16 = np.load(DATA_FOLDER + "TEST_LW4_IMAGE_NORMALIZED_F16.npy")
 test_image_standardized_f32 = np.load(DATA_FOLDER + "TEST_LW4_IMAGE_STANDARDIZED_F32.npy")

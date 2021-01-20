@@ -113,9 +113,8 @@ print(lw4_image_standardized_f32.min(), lw4_image_standardized_f32.max())
 
 
 # Split
-train_lw4_selection = np.arange(30) + 10
-valid_lw4_selection = np.arange(5) + 5
-test_lw4_selection = np.arange(5)
+train_lw4_selection = np.arange(24)
+test_lw4_selection = np.arange(16) + 24
 
 train_lw4_image_normalized_f32 = lw4_image_normalized_f32[train_lw4_selection]
 train_lw4_image_normalized_f16 = lw4_image_normalized_f16[train_lw4_selection]
@@ -142,7 +141,7 @@ train_lw4_label_7_indexes = np.argwhere(train_lw4_label_7 == 1)
 train_lw4_label_8_indexes = np.argwhere(train_lw4_label_8 == 1)
 train_lw4_label_9_indexes = np.argwhere(train_lw4_label_9 == 1)
 train_lw4_label_0_indexes = np.argwhere(train_lw4_label_0 == 1)
-
+'''
 valid_lw4_image_normalized_f32 = lw4_image_normalized_f32[valid_lw4_selection]
 valid_lw4_image_normalized_f16 = lw4_image_normalized_f16[valid_lw4_selection]
 valid_lw4_image_standardized_f32 = lw4_image_standardized_f32[valid_lw4_selection]
@@ -168,7 +167,7 @@ valid_lw4_label_7_indexes = np.argwhere(valid_lw4_label_7 == 1)
 valid_lw4_label_8_indexes = np.argwhere(valid_lw4_label_8 == 1)
 valid_lw4_label_9_indexes = np.argwhere(valid_lw4_label_9 == 1)
 valid_lw4_label_0_indexes = np.argwhere(valid_lw4_label_0 == 1)
-
+'''
 test_lw4_image_normalized_f32 = lw4_image_normalized_f32[test_lw4_selection]
 test_lw4_image_normalized_f16 = lw4_image_normalized_f16[test_lw4_selection]
 test_lw4_image_standardized_f32 = lw4_image_standardized_f32[test_lw4_selection]
@@ -196,9 +195,9 @@ test_lw4_label_9_indexes = np.argwhere(test_lw4_label_9 == 1)
 test_lw4_label_0_indexes = np.argwhere(test_lw4_label_0 == 1)
 
 train_lw4_labels_one_hot = np.stack([train_lw4_label_0, train_lw4_label_1, train_lw4_label_2, train_lw4_label_3, train_lw4_label_4, train_lw4_label_5, train_lw4_label_6, train_lw4_label_7, train_lw4_label_8, train_lw4_label_9], axis=-1)
-
+'''
 valid_lw4_labels_one_hot = np.stack([valid_lw4_label_0, valid_lw4_label_1, valid_lw4_label_2, valid_lw4_label_3, valid_lw4_label_4, valid_lw4_label_5, valid_lw4_label_6, valid_lw4_label_7, valid_lw4_label_8, valid_lw4_label_9], axis=-1)
-
+'''
 test_lw4_labels_one_hot = np.stack([test_lw4_label_0, test_lw4_label_1, test_lw4_label_2, test_lw4_label_3, test_lw4_label_4, test_lw4_label_5, test_lw4_label_6, test_lw4_label_7, test_lw4_label_8, test_lw4_label_9], axis=-1)
 
 # Save
@@ -227,7 +226,7 @@ np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_7_INDEXES.npy", tra
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_8_INDEXES.npy", train_lw4_label_8_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_9_INDEXES.npy", train_lw4_label_9_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_0_INDEXES.npy", train_lw4_label_0_indexes)
-
+'''
 np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_IMAGE_NORMALIZED_F32.npy", valid_lw4_image_normalized_f32)
 np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_IMAGE_NORMALIZED_F16.npy", valid_lw4_image_normalized_f16)
 np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_IMAGE_STANDARDIZED_F32.npy", valid_lw4_image_standardized_f32)
@@ -253,7 +252,7 @@ np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_7_INDEXES.npy", val
 np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_8_INDEXES.npy", valid_lw4_label_8_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_9_INDEXES.npy", valid_lw4_label_9_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_0_INDEXES.npy", valid_lw4_label_0_indexes)
-
+'''
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_IMAGE_NORMALIZED_F32.npy", test_lw4_image_normalized_f32)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_IMAGE_NORMALIZED_F16.npy", test_lw4_image_normalized_f16)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_IMAGE_STANDARDIZED_F32.npy", test_lw4_image_standardized_f32)
