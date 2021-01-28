@@ -2,7 +2,7 @@ import numpy as np
 import scipy.ndimage
 import edt
 
-def label_dt(label, anisotropy=None, normalize=None):
+def label_dt(label, anisotropy=None, normalize=None, normalize_scale=1.0):
     ndim = len(label.shape)
     # default anisotropy: no anisotropy
     if anisotropy == None:
@@ -19,7 +19,7 @@ def label_dt(label, anisotropy=None, normalize=None):
     distance[label == 0] = - distance[label == 0]
     # normalize function
     if normalize is not None:
-        distance = normalize(distance)
+        distance = normalize(distance, normalize_scale)
         
     return distance.astype(np.float32)
 
