@@ -18,6 +18,9 @@ import sys
 import numpy as np
 import skimage
 from skimage import io
+import h5py
+
+from distance_transform import *
 
 
 # Read
@@ -58,6 +61,7 @@ if not (lw4_image.shape == lw4_label_1.shape == lw4_label_2.shape == lw4_label_3
 
 selection = np.arange(40)
 lw4_image = lw4_image[selection]
+
 lw4_label_1 = lw4_label_1[selection]
 lw4_label_2 = lw4_label_2[selection]
 lw4_label_3 = lw4_label_3[selection]
@@ -68,29 +72,25 @@ lw4_label_7 = lw4_label_7[selection]
 lw4_label_8 = lw4_label_8[selection]
 lw4_label_9 = lw4_label_9[selection]
 
-# Label 0 : No class
-labels = np.sum([lw4_label_1*1, lw4_label_2*2, lw4_label_3*3, lw4_label_4*4, lw4_label_5*5, lw4_label_6*6, lw4_label_7*7, lw4_label_8*8, lw4_label_9*9], axis=0).astype(np.uint8)
+lw4_label_dt_1 = label_dt((lw4_label_1*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
+lw4_label_dt_2 = label_dt((lw4_label_2*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
+lw4_label_dt_3 = label_dt((lw4_label_3*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
+lw4_label_dt_4 = label_dt((lw4_label_4*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
+lw4_label_dt_5 = label_dt((lw4_label_5*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
+lw4_label_dt_6 = label_dt((lw4_label_6*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
+lw4_label_dt_7 = label_dt((lw4_label_7*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
+lw4_label_dt_8 = label_dt((lw4_label_8*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
+lw4_label_dt_9 = label_dt((lw4_label_9*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
 
-lw4_label_0 = np.where(labels > 0, 0, 1)
-
-
-# Check
-def check_label(label):
-    for z in range(label.shape[0]):
-        if label[z].min() == label[z].max():
-            print("ERROR, EMPTY LABEL SLICE")
-            sys.exit(os.EX_DATAERR)
-
-check_label(lw4_label_1)
-check_label(lw4_label_2)
-check_label(lw4_label_3)
-check_label(lw4_label_4)
-# check_label(lw4_label_5)
-# check_label(lw4_label_6)
-# check_label(lw4_label_7)
-# check_label(lw4_label_8)
-check_label(lw4_label_9)
-
+print(((lw4_label_dt_1 > 0) == (lw4_label_1 == 1)).all())
+print(((lw4_label_dt_2 > 0) == (lw4_label_2 == 1)).all())
+print(((lw4_label_dt_3 > 0) == (lw4_label_3 == 1)).all())
+print(((lw4_label_dt_4 > 0) == (lw4_label_4 == 1)).all())
+print(((lw4_label_dt_5 > 0) == (lw4_label_5 == 1)).all())
+print(((lw4_label_dt_6 > 0) == (lw4_label_6 == 1)).all())
+print(((lw4_label_dt_7 > 0) == (lw4_label_7 == 1)).all())
+print(((lw4_label_dt_8 > 0) == (lw4_label_8 == 1)).all())
+print(((lw4_label_dt_9 > 0) == (lw4_label_9 == 1)).all())
 
 # Normalize
 lw4_image_min = lw4_image.min()
@@ -120,102 +120,60 @@ train_lw4_image_normalized_f32 = lw4_image_normalized_f32[train_lw4_selection]
 train_lw4_image_normalized_f16 = lw4_image_normalized_f16[train_lw4_selection]
 train_lw4_image_standardized_f32 = lw4_image_standardized_f32[train_lw4_selection]
 train_lw4_image_standardized_f16 = lw4_image_standardized_f16[train_lw4_selection]
-train_lw4_label_1 = lw4_label_1[train_lw4_selection]
-train_lw4_label_2 = lw4_label_2[train_lw4_selection]
-train_lw4_label_3 = lw4_label_3[train_lw4_selection]
-train_lw4_label_4 = lw4_label_4[train_lw4_selection]
-train_lw4_label_5 = lw4_label_5[train_lw4_selection]
-train_lw4_label_6 = lw4_label_6[train_lw4_selection]
-train_lw4_label_7 = lw4_label_7[train_lw4_selection]
-train_lw4_label_8 = lw4_label_8[train_lw4_selection]
-train_lw4_label_9 = lw4_label_9[train_lw4_selection]
-train_lw4_label_0 = lw4_label_0[train_lw4_selection]
+train_lw4_label_dt_1 = lw4_label_dt_1[train_lw4_selection]
+train_lw4_label_dt_2 = lw4_label_dt_2[train_lw4_selection]
+train_lw4_label_dt_3 = lw4_label_dt_3[train_lw4_selection]
+train_lw4_label_dt_4 = lw4_label_dt_4[train_lw4_selection]
+train_lw4_label_dt_5 = lw4_label_dt_5[train_lw4_selection]
+train_lw4_label_dt_6 = lw4_label_dt_6[train_lw4_selection]
+train_lw4_label_dt_7 = lw4_label_dt_7[train_lw4_selection]
+train_lw4_label_dt_8 = lw4_label_dt_8[train_lw4_selection]
+train_lw4_label_dt_9 = lw4_label_dt_9[train_lw4_selection]
 
-train_lw4_label_1_indexes = np.argwhere(train_lw4_label_1 == 1)
-train_lw4_label_2_indexes = np.argwhere(train_lw4_label_2 == 1)
-train_lw4_label_3_indexes = np.argwhere(train_lw4_label_3 == 1)
-train_lw4_label_4_indexes = np.argwhere(train_lw4_label_4 == 1)
-train_lw4_label_5_indexes = np.argwhere(train_lw4_label_5 == 1)
-train_lw4_label_6_indexes = np.argwhere(train_lw4_label_6 == 1)
-train_lw4_label_7_indexes = np.argwhere(train_lw4_label_7 == 1)
-train_lw4_label_8_indexes = np.argwhere(train_lw4_label_8 == 1)
-train_lw4_label_9_indexes = np.argwhere(train_lw4_label_9 == 1)
-train_lw4_label_0_indexes = np.argwhere(train_lw4_label_0 == 1)
-'''
-valid_lw4_image_normalized_f32 = lw4_image_normalized_f32[valid_lw4_selection]
-valid_lw4_image_normalized_f16 = lw4_image_normalized_f16[valid_lw4_selection]
-valid_lw4_image_standardized_f32 = lw4_image_standardized_f32[valid_lw4_selection]
-valid_lw4_image_standardized_f16 = lw4_image_standardized_f16[valid_lw4_selection]
-valid_lw4_label_1 = lw4_label_1[valid_lw4_selection]
-valid_lw4_label_2 = lw4_label_2[valid_lw4_selection]
-valid_lw4_label_3 = lw4_label_3[valid_lw4_selection]
-valid_lw4_label_4 = lw4_label_4[valid_lw4_selection]
-valid_lw4_label_5 = lw4_label_5[valid_lw4_selection]
-valid_lw4_label_6 = lw4_label_6[valid_lw4_selection]
-valid_lw4_label_7 = lw4_label_7[valid_lw4_selection]
-valid_lw4_label_8 = lw4_label_8[valid_lw4_selection]
-valid_lw4_label_9 = lw4_label_9[valid_lw4_selection]
-valid_lw4_label_0 = lw4_label_0[valid_lw4_selection]
+train_lw4_label_1_indexes = np.argwhere(train_lw4_label_dt_1 > 0)
+train_lw4_label_2_indexes = np.argwhere(train_lw4_label_dt_2 > 0)
+train_lw4_label_3_indexes = np.argwhere(train_lw4_label_dt_3 > 0)
+train_lw4_label_4_indexes = np.argwhere(train_lw4_label_dt_4 > 0)
+train_lw4_label_5_indexes = np.argwhere(train_lw4_label_dt_5 > 0)
+train_lw4_label_6_indexes = np.argwhere(train_lw4_label_dt_6 > 0)
+train_lw4_label_7_indexes = np.argwhere(train_lw4_label_dt_7 > 0)
+train_lw4_label_8_indexes = np.argwhere(train_lw4_label_dt_8 > 0)
+train_lw4_label_9_indexes = np.argwhere(train_lw4_label_dt_9 > 0)
 
-valid_lw4_label_1_indexes = np.argwhere(valid_lw4_label_1 == 1)
-valid_lw4_label_2_indexes = np.argwhere(valid_lw4_label_2 == 1)
-valid_lw4_label_3_indexes = np.argwhere(valid_lw4_label_3 == 1)
-valid_lw4_label_4_indexes = np.argwhere(valid_lw4_label_4 == 1)
-valid_lw4_label_5_indexes = np.argwhere(valid_lw4_label_5 == 1)
-valid_lw4_label_6_indexes = np.argwhere(valid_lw4_label_6 == 1)
-valid_lw4_label_7_indexes = np.argwhere(valid_lw4_label_7 == 1)
-valid_lw4_label_8_indexes = np.argwhere(valid_lw4_label_8 == 1)
-valid_lw4_label_9_indexes = np.argwhere(valid_lw4_label_9 == 1)
-valid_lw4_label_0_indexes = np.argwhere(valid_lw4_label_0 == 1)
-'''
 test_lw4_image_normalized_f32 = lw4_image_normalized_f32[test_lw4_selection]
 test_lw4_image_normalized_f16 = lw4_image_normalized_f16[test_lw4_selection]
 test_lw4_image_standardized_f32 = lw4_image_standardized_f32[test_lw4_selection]
 test_lw4_image_standardized_f16 = lw4_image_standardized_f16[test_lw4_selection]
-test_lw4_label_1 = lw4_label_1[test_lw4_selection]
-test_lw4_label_2 = lw4_label_2[test_lw4_selection]
-test_lw4_label_3 = lw4_label_3[test_lw4_selection]
-test_lw4_label_4 = lw4_label_4[test_lw4_selection]
-test_lw4_label_5 = lw4_label_5[test_lw4_selection]
-test_lw4_label_6 = lw4_label_6[test_lw4_selection]
-test_lw4_label_7 = lw4_label_7[test_lw4_selection]
-test_lw4_label_8 = lw4_label_8[test_lw4_selection]
-test_lw4_label_9 = lw4_label_9[test_lw4_selection]
-test_lw4_label_0 = lw4_label_0[test_lw4_selection]
+test_lw4_label_dt_1 = lw4_label_dt_1[test_lw4_selection]
+test_lw4_label_dt_2 = lw4_label_dt_2[test_lw4_selection]
+test_lw4_label_dt_3 = lw4_label_dt_3[test_lw4_selection]
+test_lw4_label_dt_4 = lw4_label_dt_4[test_lw4_selection]
+test_lw4_label_dt_5 = lw4_label_dt_5[test_lw4_selection]
+test_lw4_label_dt_6 = lw4_label_dt_6[test_lw4_selection]
+test_lw4_label_dt_7 = lw4_label_dt_7[test_lw4_selection]
+test_lw4_label_dt_8 = lw4_label_dt_8[test_lw4_selection]
+test_lw4_label_dt_9 = lw4_label_dt_9[test_lw4_selection]
 
-test_lw4_label_1_indexes = np.argwhere(test_lw4_label_1 == 1)
-test_lw4_label_2_indexes = np.argwhere(test_lw4_label_2 == 1)
-test_lw4_label_3_indexes = np.argwhere(test_lw4_label_3 == 1)
-test_lw4_label_4_indexes = np.argwhere(test_lw4_label_4 == 1)
-test_lw4_label_5_indexes = np.argwhere(test_lw4_label_5 == 1)
-test_lw4_label_6_indexes = np.argwhere(test_lw4_label_6 == 1)
-test_lw4_label_7_indexes = np.argwhere(test_lw4_label_7 == 1)
-test_lw4_label_8_indexes = np.argwhere(test_lw4_label_8 == 1)
-test_lw4_label_9_indexes = np.argwhere(test_lw4_label_9 == 1)
-test_lw4_label_0_indexes = np.argwhere(test_lw4_label_0 == 1)
+test_lw4_label_1_indexes = np.argwhere(test_lw4_label_dt_1 > 0)
+test_lw4_label_2_indexes = np.argwhere(test_lw4_label_dt_2 > 0)
+test_lw4_label_3_indexes = np.argwhere(test_lw4_label_dt_3 > 0)
+test_lw4_label_4_indexes = np.argwhere(test_lw4_label_dt_4 > 0)
+test_lw4_label_5_indexes = np.argwhere(test_lw4_label_dt_5 > 0)
+test_lw4_label_6_indexes = np.argwhere(test_lw4_label_dt_6 > 0)
+test_lw4_label_7_indexes = np.argwhere(test_lw4_label_dt_7 > 0)
+test_lw4_label_8_indexes = np.argwhere(test_lw4_label_dt_8 > 0)
+test_lw4_label_9_indexes = np.argwhere(test_lw4_label_dt_9 > 0)
 
-train_lw4_labels_one_hot = np.stack([train_lw4_label_0, train_lw4_label_1, train_lw4_label_2, train_lw4_label_3, train_lw4_label_4, train_lw4_label_5, train_lw4_label_6, train_lw4_label_7, train_lw4_label_8, train_lw4_label_9], axis=-1)
-'''
-valid_lw4_labels_one_hot = np.stack([valid_lw4_label_0, valid_lw4_label_1, valid_lw4_label_2, valid_lw4_label_3, valid_lw4_label_4, valid_lw4_label_5, valid_lw4_label_6, valid_lw4_label_7, valid_lw4_label_8, valid_lw4_label_9], axis=-1)
-'''
-test_lw4_labels_one_hot = np.stack([test_lw4_label_0, test_lw4_label_1, test_lw4_label_2, test_lw4_label_3, test_lw4_label_4, test_lw4_label_5, test_lw4_label_6, test_lw4_label_7, test_lw4_label_8, test_lw4_label_9], axis=-1)
+train_lw4_labels_one_hot = np.stack([train_lw4_label_dt_1, train_lw4_label_dt_2, train_lw4_label_dt_3, train_lw4_label_dt_4, train_lw4_label_dt_5, train_lw4_label_dt_6, train_lw4_label_dt_7, train_lw4_label_dt_8, train_lw4_label_dt_9], axis=-1)
+
+test_lw4_labels_one_hot = np.stack([test_lw4_label_dt_1, test_lw4_label_dt_2, test_lw4_label_dt_3, test_lw4_label_dt_4, test_lw4_label_dt_5, test_lw4_label_dt_6, test_lw4_label_dt_7, test_lw4_label_dt_8, test_lw4_label_dt_9], axis=-1)
 
 # Save
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_IMAGE_NORMALIZED_F32.npy", train_lw4_image_normalized_f32)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_IMAGE_NORMALIZED_F16.npy", train_lw4_image_normalized_f16)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_IMAGE_STANDARDIZED_F32.npy", train_lw4_image_standardized_f32)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_IMAGE_STANDARDIZED_F16.npy", train_lw4_image_standardized_f16)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_1.npy", train_lw4_label_1)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_2.npy", train_lw4_label_2)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_3.npy", train_lw4_label_3)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_4.npy", train_lw4_label_4)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_5.npy", train_lw4_label_5)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_6.npy", train_lw4_label_6)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_7.npy", train_lw4_label_7)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_8.npy", train_lw4_label_8)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_9.npy", train_lw4_label_9)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_0.npy", train_lw4_label_0)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABELS_ONE_HOT.npy", train_lw4_labels_one_hot)
+np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABELS_DT.npy", train_lw4_labels_one_hot)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_1_INDEXES.npy", train_lw4_label_1_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_2_INDEXES.npy", train_lw4_label_2_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_3_INDEXES.npy", train_lw4_label_3_indexes)
@@ -225,49 +183,12 @@ np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_6_INDEXES.npy", tra
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_7_INDEXES.npy", train_lw4_label_7_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_8_INDEXES.npy", train_lw4_label_8_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_9_INDEXES.npy", train_lw4_label_9_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TRAIN_LW4_LABEL_0_INDEXES.npy", train_lw4_label_0_indexes)
-'''
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_IMAGE_NORMALIZED_F32.npy", valid_lw4_image_normalized_f32)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_IMAGE_NORMALIZED_F16.npy", valid_lw4_image_normalized_f16)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_IMAGE_STANDARDIZED_F32.npy", valid_lw4_image_standardized_f32)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_IMAGE_STANDARDIZED_F16.npy", valid_lw4_image_standardized_f16)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_1.npy", valid_lw4_label_1)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_2.npy", valid_lw4_label_2)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_3.npy", valid_lw4_label_3)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_4.npy", valid_lw4_label_4)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_5.npy", valid_lw4_label_5)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_6.npy", valid_lw4_label_6)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_7.npy", valid_lw4_label_7)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_8.npy", valid_lw4_label_8)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_9.npy", valid_lw4_label_9)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_0.npy", valid_lw4_label_0)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABELS_ONE_HOT.npy", valid_lw4_labels_one_hot)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_1_INDEXES.npy", valid_lw4_label_1_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_2_INDEXES.npy", valid_lw4_label_2_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_3_INDEXES.npy", valid_lw4_label_3_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_4_INDEXES.npy", valid_lw4_label_4_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_5_INDEXES.npy", valid_lw4_label_5_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_6_INDEXES.npy", valid_lw4_label_6_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_7_INDEXES.npy", valid_lw4_label_7_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_8_INDEXES.npy", valid_lw4_label_8_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_9_INDEXES.npy", valid_lw4_label_9_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/VALID_LW4_LABEL_0_INDEXES.npy", valid_lw4_label_0_indexes)
-'''
+
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_IMAGE_NORMALIZED_F32.npy", test_lw4_image_normalized_f32)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_IMAGE_NORMALIZED_F16.npy", test_lw4_image_normalized_f16)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_IMAGE_STANDARDIZED_F32.npy", test_lw4_image_standardized_f32)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_IMAGE_STANDARDIZED_F16.npy", test_lw4_image_standardized_f16)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_1.npy", test_lw4_label_1)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_2.npy", test_lw4_label_2)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_3.npy", test_lw4_label_3)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_4.npy", test_lw4_label_4)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_5.npy", test_lw4_label_5)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_6.npy", test_lw4_label_6)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_7.npy", test_lw4_label_7)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_8.npy", test_lw4_label_8)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_9.npy", test_lw4_label_9)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_0.npy", test_lw4_label_0)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABELS_ONE_HOT.npy", test_lw4_labels_one_hot)
+np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABELS_DT.npy", test_lw4_labels_one_hot)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_1_INDEXES.npy", test_lw4_label_1_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_2_INDEXES.npy", test_lw4_label_2_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_3_INDEXES.npy", test_lw4_label_3_indexes)
@@ -277,4 +198,28 @@ np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_6_INDEXES.npy", test
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_7_INDEXES.npy", test_lw4_label_7_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_8_INDEXES.npy", test_lw4_label_8_indexes)
 np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_9_INDEXES.npy", test_lw4_label_9_indexes)
-np.save("/home/cyril/Documents/Data/LW4_40_9/TEST_LW4_LABEL_0_INDEXES.npy", test_lw4_label_0_indexes)
+
+hf = h5py.File('/home/cyril/Documents/Data/LW4_40_9/LW4_40_9.h5', 'w')
+hf.create_dataset('train_image_normalized', data=train_lw4_image_normalized_f32)
+hf.create_dataset('test_image_normalized', data=test_lw4_image_normalized_f32)
+hf.create_dataset('train_image_standardized', data=train_lw4_image_standardized_f32)
+hf.create_dataset('test_image_standardized', data=test_lw4_image_standardized_f32)
+hf.create_dataset('train_label_1', data=train_lw4_label_dt_1)
+hf.create_dataset('train_label_2', data=train_lw4_label_dt_2)
+hf.create_dataset('train_label_3', data=train_lw4_label_dt_3)
+hf.create_dataset('train_label_4', data=train_lw4_label_dt_4)
+hf.create_dataset('train_label_5', data=train_lw4_label_dt_5)
+hf.create_dataset('train_label_6', data=train_lw4_label_dt_6)
+hf.create_dataset('train_label_7', data=train_lw4_label_dt_7)
+hf.create_dataset('train_label_8', data=train_lw4_label_dt_8)
+hf.create_dataset('train_label_9', data=train_lw4_label_dt_9)
+hf.create_dataset('test_label_1', data=test_lw4_label_dt_1)
+hf.create_dataset('test_label_2', data=test_lw4_label_dt_2)
+hf.create_dataset('test_label_3', data=test_lw4_label_dt_3)
+hf.create_dataset('test_label_4', data=test_lw4_label_dt_4)
+hf.create_dataset('test_label_5', data=test_lw4_label_dt_5)
+hf.create_dataset('test_label_6', data=test_lw4_label_dt_6)
+hf.create_dataset('test_label_7', data=test_lw4_label_dt_7)
+hf.create_dataset('test_label_8', data=test_lw4_label_dt_8)
+hf.create_dataset('test_label_9', data=test_lw4_label_dt_9)
+hf.close()
