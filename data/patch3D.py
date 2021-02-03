@@ -29,7 +29,7 @@ def gen_patches_batch_augmented_3d_label_indexes_one_hot(patch_size_z, patch_siz
             if randint(0,9) < 2:
                 x = randint(0, image.shape[2] - patch_size_x - 1)
                 y = randint(0, image.shape[1] - patch_size_y - 1)
-                z = randint(0, image.shape[0] - patch_size_z - 1)
+                z = randint(0, image.shape[0] - patch_size_z)
             else:
                 cla = randint(0, len(label_indexes)-1)
                 
