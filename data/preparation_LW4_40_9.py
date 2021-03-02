@@ -72,15 +72,15 @@ lw4_label_7 = lw4_label_7[selection]
 lw4_label_8 = lw4_label_8[selection]
 lw4_label_9 = lw4_label_9[selection]
 
-lw4_label_dt_1 = label_dt((lw4_label_1*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
-lw4_label_dt_2 = label_dt((lw4_label_2*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
-lw4_label_dt_3 = label_dt((lw4_label_3*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
-lw4_label_dt_4 = label_dt((lw4_label_4*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
-lw4_label_dt_5 = label_dt((lw4_label_5*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
-lw4_label_dt_6 = label_dt((lw4_label_6*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
-lw4_label_dt_7 = label_dt((lw4_label_7*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
-lw4_label_dt_8 = label_dt((lw4_label_8*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
-lw4_label_dt_9 = label_dt((lw4_label_9*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=50.0)
+lw4_label_dt_1 = label_dt((lw4_label_1*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=10.0)
+lw4_label_dt_2 = label_dt((lw4_label_2*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=2.0)
+lw4_label_dt_3 = label_dt((lw4_label_3*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=4.0)
+lw4_label_dt_4 = label_dt((lw4_label_4*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=10.0)
+lw4_label_dt_5 = label_dt((lw4_label_5*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=5.0)
+lw4_label_dt_6 = label_dt((lw4_label_6*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=10.0)
+lw4_label_dt_7 = label_dt((lw4_label_7*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=10.0)
+lw4_label_dt_8 = label_dt((lw4_label_8*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=10.0)
+lw4_label_dt_9 = label_dt((lw4_label_9*1.0).astype(np.float32), normalize=normalize_tanh, normalize_scale=2.0)
 
 print(((lw4_label_dt_1 > 0) == (lw4_label_1 == 1)).all())
 print(((lw4_label_dt_2 > 0) == (lw4_label_2 == 1)).all())
