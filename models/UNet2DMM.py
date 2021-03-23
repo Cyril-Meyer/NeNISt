@@ -3,8 +3,8 @@ import numpy as np
 
 from tensorflow.keras.layers import BatchNormalization, Conv2D, Cropping2D, Conv2DTranspose, concatenate
 from tensorflow.keras.layers import Dropout, MaxPooling2D
-from layers.dilation2d import Dilation2D
-from layers.erosion2d import Erosion2D
+from .layers.dilation2d import Dilation2D
+from .layers.erosion2d import Erosion2D
 
 
 def conv_block(input, filters, kernel_size=3, conv_per_block=2, dropout=0, batch_normalization=False, groups=1):
