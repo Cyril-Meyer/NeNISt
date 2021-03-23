@@ -15,3 +15,5 @@ Here is a list of datasets with some interesting images.
 
 * [ISBI 2012 EM Segmentation](http://brainiac2.mit.edu/isbi_challenge/home)
 * [EPFL Electron Microscopy Dataset](https://www.epfl.ch/labs/cvlab/data/data-em/)
+* [MitoEM](https://donglaiw.github.io/page/mitoEM/)
+
