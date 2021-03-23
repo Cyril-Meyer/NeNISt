@@ -134,6 +134,7 @@ dmypy.json
 
 # Jupyter
 .ipynb_checkpoints
+Untitled*.ipynb
 
 # Python cache
 __pycache__
