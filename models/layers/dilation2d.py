@@ -1,7 +1,11 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
+from tensorflow.keras import initializers, constraints
+from tensorflow.python.keras.utils import conv_utils
+from tensorflow.keras import backend as K
 
 # source : https://github.com/ranjanZ
+
 
 class Dilation2D(Layer):
     '''
@@ -21,7 +25,6 @@ class Dilation2D(Layer):
 
         self.kernel_initializer = initializers.get(kernel_initializer)
         self.kernel_constraint = constraints.get(kernel_constraint)
-
         # for we are assuming channel last
         self.channel_axis = -1
 
@@ -49,7 +52,7 @@ class Dilation2D(Layer):
             # dilation2d returns image of same size as x
             # so taking max over channel_axis
             out = K.max(
-                self.__dilation2d(x, self.kernel[..., i],
+                self._dilation2d(x, self.kernel[..., i],
                                   self.strides, self.padding),
                 axis=self.channel_axis, keepdims=True)
 
@@ -75,9 +78,12 @@ class Dilation2D(Layer):
 
         return (input_shape[0],) + tuple(new_space) + (self.num_filters,)
 
-    def __dilation2d(self, x, st_element, strides, padding,
+    def _dilation2d(self, x, st_element, strides, padding,
                      rates=(1, 1, 1, 1)):
-        # tf.nn.dilation2d(input, filter, strides, rates, padding, name=None)
+        # tf.nn.dilation2d(input, filter,  strides, rates, padding, name=None)
+        # ...dilation2d_v2(input, filters, strides, padding, data_format, dilations, name=None
+        # rates <=> dilations
+
         x = tf.nn.dilation2d(x, st_element, (1, ) + strides + (1, ),
-                             rates, padding.upper())
+                             padding.upper(), "NHWC", rates)
         return x

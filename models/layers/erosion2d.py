@@ -1,7 +1,11 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
+from tensorflow.keras import initializers, constraints
+from tensorflow.python.keras.utils import conv_utils
+from tensorflow.keras import backend as K
 
 # source : https://github.com/ranjanZ
+
 
 class Erosion2D(Layer):
     '''
@@ -48,7 +52,7 @@ class Erosion2D(Layer):
             # erosion2d returns image of same size as x
             # so taking min over channel_axis
             out = K.min(
-                self.__erosion2d(x, self.kernel[..., i],
+                self._erosion2d(x, self.kernel[..., i],
                                  self.strides, self.padding),
                 axis=self.channel_axis, keepdims=True)
 
@@ -74,9 +78,12 @@ class Erosion2D(Layer):
 
         return (input_shape[0],) + tuple(new_space) + (self.num_filters,)
 
-    def __erosion2d(self, x, st_element, strides, padding,
+    def _erosion2d(self, x, st_element, strides, padding,
                     rates=(1, 1, 1, 1)):
-        # tf.nn.erosion2d(input, filter, strides, rates, padding, name=None)
+        # tf.nn.erosion2d(input, filter,  strides, rates, padding, name=None)
+        # ...erosion2d_v2(input, filters, strides, padding, data_format, dilations, name=None
+        # rates <=> dilations
+
         x = tf.nn.erosion2d(x, st_element, (1, ) + strides + (1, ),
-                            rates, padding.upper())
+                             padding.upper(), "NHWC", rates)
         return x
