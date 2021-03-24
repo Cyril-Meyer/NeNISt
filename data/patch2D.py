@@ -24,8 +24,8 @@ def gen_patches_batch_augmented_2d_bin(patch_size_y, patch_size_x, image, label,
             x = randint(0, image.shape[2] - patch_size_x)
             y = randint(0, image.shape[1] - patch_size_y)
         
-            batch_image[i, :, :, 0] = image[z:z + patch_size_z, y:y + patch_size_y, x:x + patch_size_x]
-            batch_label[i, :, :, 0] = label[z:z + patch_size_z, y:y + patch_size_y, x:x + patch_size_x]
+            batch_image[i, :, :, 0] = image[y:y + patch_size_y, x:x + patch_size_x]
+            batch_label[i, :, :, 0] = label[y:y + patch_size_y, x:x + patch_size_x]
 
             rot = randint(0, 3)
             batch_image[i, :, :] = np.rot90(batch_image[i, :, :], rot)
