@@ -15,7 +15,7 @@ else:
     DATA_FOLDER = "/b/home/miv/cmeyer/Data/MitoEM/MitoEM-H/"
 
 train_image_normalized_f16 = np.load(DATA_FOLDER + "TRAIN_IMAGE_NORMALIZED_F16.npy")
-train_label_dt = np.load(DATA_FOLDER + "TRAIN_LABEL_DT.npy")
+train_label = np.load(DATA_FOLDER + "TRAIN_LABEL_DT.npy")
 
 valid_image_normalized_f16 = np.load(DATA_FOLDER + "VALID_IMAGE_NORMALIZED_F16.npy")
-valid_label_dt = np.load(DATA_FOLDER + "VALID_LABEL_DT.npy")
+valid_label = np.load(DATA_FOLDER + "VALID_LABEL_DT.npy")
