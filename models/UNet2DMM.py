@@ -30,19 +30,6 @@ def conv_block(input, filters, kernel_size=3, conv_per_block=2, dropout=0, batch
 def UNet(input_shape=(None, None, 1), output_classes=2, output_activation='default',
          filters=64, depth=5, conv_per_block=2,
          dropouts=0.50, batch_normalization=True, groups=1):
-    """
-    :param input_shape: input shape tuple
-    :param output_classes: number of output classes (single output for output_classes <= 2)
-    :param output_activation: the activation function of the last layer
-    :param filters: number of filters per conv, integer with initial value or array of size depth * 2 - 1
-    :param depth: number of conv block in contracting path and expansive path
-    
-    :param conv_per_block: number of convolution per level
-    :param dropouts: dropout per conv, integer with middle value or array of size depth * 2 - 1
-    :param batch_normalization: add batch normalization after convolution or not
-    :param groups: groups per conv, integer with first value or array of size depth * 2 - 1
-    :return: a unet-like keras model
-    """
 
     if not type(input_shape) is tuple:
         print("WARNING: input_shape parameters invalid, set as default")
