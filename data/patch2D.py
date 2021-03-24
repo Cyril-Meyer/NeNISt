@@ -23,7 +23,7 @@ def gen_patches_batch_augmented_2d_bin(patch_size_y, patch_size_x, image, label,
         for i in range(batch_size):
             x = randint(0, image.shape[2] - patch_size_x)
             y = randint(0, image.shape[1] - patch_size_y)
-            z = randint(0, image.shape[0])
+            z = randint(0, image.shape[0] - 1)
         
             batch_image[i, :, :, 0] = image[z, y:y + patch_size_y, x:x + patch_size_x]
             batch_label[i, :, :, 0] = label[z, y:y + patch_size_y, x:x + patch_size_x]
