@@ -17,7 +17,7 @@ import skimage as sk
 
 def gen_patches_batch_augmented_2d_bin(patch_size_y, patch_size_x, image, label, batch_size=32):
     batch_image = np.zeros((batch_size, patch_size_y, patch_size_x, 1), dtype=image.dtype)
-    batch_label = np.zeros((batch_size, patch_size_y, patch_size_x, 1), dtype=label.dtype)
+    batch_label = np.zeros((batch_size, patch_size_y, patch_size_x, 1), dtype=np.float32)
     
     while True:
         for i in range(batch_size):
@@ -25,7 +25,7 @@ def gen_patches_batch_augmented_2d_bin(patch_size_y, patch_size_x, image, label,
             y = randint(0, image.shape[1] - patch_size_y)
         
             batch_image[i, :, :, 0] = image[z:z + patch_size_z, y:y + patch_size_y, x:x + patch_size_x]
-            batch_label[i, :, :, :] = label[z:z + patch_size_z, y:y + patch_size_y, x:x + patch_size_x]
+            batch_label[i, :, :, 0] = label[z:z + patch_size_z, y:y + patch_size_y, x:x + patch_size_x]
 
             rot = randint(0, 3)
             batch_image[i, :, :] = np.rot90(batch_image[i, :, :], rot)
@@ -38,6 +38,7 @@ def gen_patches_batch_augmented_2d_bin(patch_size_y, patch_size_x, image, label,
             if randint(0, 1) == 1:
                 batch_image[i, :, :] = np.flipud(batch_image[i, :, :])
                 batch_label[i, :, :] = np.flipud(batch_label[i, :, :])
+        yield batch_image, batch_label
 
                 
 def gen_patches_batch_augmented_label_indexes_one_hot(patch_size, image, label, label_indexes, batch_size=32):
