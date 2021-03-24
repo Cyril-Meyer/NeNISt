@@ -1,6 +1,6 @@
 # ------------------------------------------------------------ #
 #
-# File : data/datasets/MitoEM-R.py
+# File : data/datasets/MitoEMR.py
 # Authors : CM
 # Easy MitoEM dataset access
 #
