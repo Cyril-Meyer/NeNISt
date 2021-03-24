@@ -26,7 +26,7 @@ def UNet(input_shape=(None, None, 1), output_classes=2, output_activation='defau
          dropouts=0.50, batch_normalization=True, groups=1):
     """
     :param input_shape: input shape tuple
-    :param output_classes: number of output classes (single output for output_classes <= 2)
+    :param output_classes: number of output classes
     :param output_activation: the activation function of the last layer
     :param filters: number of filters per conv, integer with initial value or array of size depth * 2 - 1
     :param depth: number of conv block in contracting path and expansive path
@@ -41,10 +41,6 @@ def UNet(input_shape=(None, None, 1), output_classes=2, output_activation='defau
     if not type(input_shape) is tuple:
         print("WARNING: input_shape parameters invalid, set as default")
         input_shape = (None, None, None)
-
-    if output_classes < 2:
-        print("WARNING: output_classes parameters invalid, set as default")
-        output_classes = 2
 
     if type(filters) is int:
         filters = [filters * 2**i for i in range(depth-1)] + [filters * 2**i for i in range(depth-1, -1, -1)]

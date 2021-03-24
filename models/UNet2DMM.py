@@ -35,10 +35,6 @@ def UNet(input_shape=(None, None, 1), output_classes=2, output_activation='defau
         print("WARNING: input_shape parameters invalid, set as default")
         input_shape = (None, None, None)
 
-    if output_classes < 2:
-        print("WARNING: output_classes parameters invalid, set as default")
-        output_classes = 2
-
     if type(filters) is int:
         filters = [filters * 2**i for i in range(depth-1)] + [filters * 2**i for i in range(depth-1, -1, -1)]
 
