@@ -17,7 +17,7 @@ from distance_transform import *
 anisotropy=(30, 8, 8)
 normalize = normalize_tanh
 normalize_scale_pos = 10.0
-normalize_scale_neg = 20.0
+normalize_scale_neg = 10.0
 
 PATH_IN = "/HDD1/data/MitoEM/MitoEM-H/"
 PATH_OUT = "/home/cyril/Documents/Data/MitoEM/MitoEM-H/"
