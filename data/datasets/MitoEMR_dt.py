@@ -6,6 +6,8 @@
 #
 # ------------------------------------------------------------ #
 
+raise NotImplementedError
+
 import os
 import numpy as np
 
