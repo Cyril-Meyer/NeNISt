@@ -15,7 +15,7 @@ import numpy as np
 import skimage as sk
 
 
-def gen_patches_batch_augmented_2d_bin(patch_size_y, patch_size_x, image, label, batch_size=32):
+def gen_patches_batch_augmented_2d_bin(patch_size_y, patch_size_x, image, label, batch_size=32, weights=None):
     batch_image = np.zeros((batch_size, patch_size_y, patch_size_x, 1), dtype=image.dtype)
     batch_label = np.zeros((batch_size, patch_size_y, patch_size_x, 1), dtype=np.float32)
     
@@ -39,7 +39,11 @@ def gen_patches_batch_augmented_2d_bin(patch_size_y, patch_size_x, image, label,
             if randint(0, 1) == 1:
                 batch_image[i, :, :] = np.flipud(batch_image[i, :, :])
                 batch_label[i, :, :] = np.flipud(batch_label[i, :, :])
-        yield batch_image, batch_label
+        if weights is None:
+            yield batch_image, batch_label
+        else:
+            batch_weights = (batch_label*(weights[1]-weights[0])) + weights[0]
+            yield batch_image, batch_label, batch_weights
 
                 
 def gen_patches_batch_augmented_label_indexes_one_hot(patch_size, image, label, label_indexes, batch_size=32):
