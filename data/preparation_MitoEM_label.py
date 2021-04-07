@@ -37,8 +37,8 @@ print("SAVE TRAIN")
 # only needed once
 #np.save(PATH_OUT + "TRAIN_LABEL.npy", label_train)
 np.save(PATH_OUT + "TRAIN_LABEL_DT_" + str(int(normalize_scale_neg)) + "_" + str(int(normalize_scale_pos)) + ".npy", label_train_dt)
-skimage.io.imsave(PATH_OUT + "mito_train_bin.tif", label_train*255)
-skimage.io.imsave(PATH_OUT + "mito_train_bin_dt.tif", ((label_train_dt+1)/2*255).astype(np.uint8))
+# skimage.io.imsave(PATH_OUT + "mito_train_bin.tif", label_train*255)
+skimage.io.imsave(PATH_OUT + "mito_train_bin_dt_" + str(int(normalize_scale_neg)) + "_" + str(int(normalize_scale_pos)) + ".tif", ((label_train_dt+1)/2*255).astype(np.uint8))
 
 if ((label_train_dt > 0) == (label_train > 0)).all():
     print("OK")
@@ -59,8 +59,8 @@ print("SAVE VALID")
 # only needed once
 #np.save(PATH_OUT + "VALID_LABEL.npy", label_valid)
 np.save(PATH_OUT + "VALID_LABEL_DT_" + str(int(normalize_scale_neg)) + "_" + str(int(normalize_scale_pos)) + ".npy", label_valid_dt)
-skimage.io.imsave(PATH_OUT + "mito_valid_bin.tif", label_valid*255)
-skimage.io.imsave(PATH_OUT + "mito_valid_bin_dt.tif", ((label_valid_dt+1)/2*255).astype(np.uint8))
+# skimage.io.imsave(PATH_OUT + "mito_valid_bin.tif", label_valid*255)
+skimage.io.imsave(PATH_OUT + "mito_valid_bin_dt_" + str(int(normalize_scale_neg)) + "_" + str(int(normalize_scale_pos)) + ".tif", ((label_valid_dt+1)/2*255).astype(np.uint8))
 
 if ((label_valid_dt > 0) == (label_valid > 0)).all():
     print("OK")
