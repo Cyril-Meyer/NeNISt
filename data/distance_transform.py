@@ -24,16 +24,17 @@ def label_dt(label, anisotropy=None, normalize=normalize_tanh, normalize_scale_p
     if not len(anisotropy) == ndim:
         print("ERROR: label_dt invalid anisotropy tuple length")
     
-    distance_pos = edt.edt(label)
+    distance_pos = edt.edt(label, anisotropy=anisotropy)
     distance_pos = normalize(distance_pos, normalize_scale_pos)
     
-    distance_neg = -edt.edt(1 - label)
+    distance_neg = -edt.edt(1 - label, anisotropy=anisotropy)
     distance_neg = normalize(distance_neg, normalize_scale_neg)
     
     distance = distance_neg
     distance[label == 1] = distance_pos[label == 1]
     
     return distance
+
 
 def label_dt_f16(label, anisotropy=None, normalize=normalize_tanh, normalize_scale_pos=1.0, normalize_scale_neg=1.0):
     ndim = len(label.shape)
@@ -44,10 +45,10 @@ def label_dt_f16(label, anisotropy=None, normalize=normalize_tanh, normalize_sca
     if not len(anisotropy) == ndim:
         print("ERROR: label_dt invalid anisotropy tuple length")
     
-    distance_pos = edt.edt(label).astype(np.float16)
+    distance_pos = edt.edt(label, anisotropy=anisotropy).astype(np.float16)
     distance_pos = normalize(distance_pos, normalize_scale_pos)
     
-    distance_neg = -edt.edt(1 - label).astype(np.float16)
+    distance_neg = -edt.edt(1 - label, anisotropy=anisotropy).astype(np.float16)
     distance_neg = normalize(distance_neg, normalize_scale_neg)
     
     distance = distance_neg
