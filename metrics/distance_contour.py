@@ -37,6 +37,8 @@ def distance_contour_segmentation_3D(seg1, seg2):
     distances_1 = np.array(distances_contour_distancemap_3D(contour_1, distance_map_2))
     distances_2 = np.array(distances_contour_distancemap_3D(contour_2, distance_map_1))
     
+    if len(distances_1) == 0 or len(distances_2) == 0:
+        return ((-1,-1,-1), (-1,-1,-1))
     return (distances_1.mean(), distances_1.std(), distances_1.max()), (distances_2.mean(), distances_2.std(), distances_2.max())
     
 
