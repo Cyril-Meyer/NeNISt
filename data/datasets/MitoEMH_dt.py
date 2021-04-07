@@ -10,7 +10,7 @@ import os
 import numpy as np
 
 if(os.uname()[1] == 'lythandas'):
-    DATA_FOLDER = "/home/cyril/Documents/Data/MitoEM/MitoEM-H/"
+    DATA_FOLDER = "/HDD1/data/MitoEM/MitoEM-H/"
 else:
     DATA_FOLDER = "/b/home/miv/cmeyer/Data/MitoEM/MitoEM-H/"
 

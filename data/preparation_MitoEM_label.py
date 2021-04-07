@@ -21,10 +21,10 @@ normalize_scale_pos = int(sys.argv[2])
 print(normalize_scale_neg, normalize_scale_pos)
 
 PATH_IN = "/HDD1/data/MitoEM/MitoEM-H/"
-PATH_OUT = "/home/cyril/Documents/Data/MitoEM/MitoEM-H/"
+PATH_OUT = "/HDD1/data/MitoEM/MitoEM-H/"
 '''
 PATH_IN = "/HDD1/data/MitoEM/MitoEM-R/"
-PATH_OUT = "/home/cyril/Documents/Data/MitoEM/MitoEM-R/"
+PATH_OUT = "/HDD1/data/MitoEM/MitoEM-R/"
 '''
 
 print("READ TRAIN")
