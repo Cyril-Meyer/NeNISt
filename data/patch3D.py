@@ -136,3 +136,39 @@ def gen_patches_batch_augmented_3d_label_indexes_one_hot(patch_size_z, patch_siz
                 batch_label[i, :, :, :] = np.flip(batch_label[i, :, :, :], 2)
             
         yield batch_image, batch_label
+
+
+def gen_patches_batch_augmented_3d(patch_size_z, patch_size_y, patch_size_x, n_classes, image, label, batch_size=32, weights=None):
+    batch_image = np.zeros((batch_size, patch_size_z, patch_size_y, patch_size_x, 1), dtype=image.dtype)
+    batch_label = np.zeros((batch_size, patch_size_z, patch_size_y, patch_size_x, n_classes), dtype=np.float32)
+    
+    while True:
+        for i in range(batch_size):
+            x = randint(0, image.shape[2] - patch_size_x)
+            y = randint(0, image.shape[1] - patch_size_y)
+            z = randint(0, image.shape[0] - patch_size_z)
+            
+            batch_image[i, :, :, :, 0] = image[z:z + patch_size_z, y:y + patch_size_y, x:x + patch_size_x]
+            batch_label[i, :, :, :, :] = label[z:z + patch_size_z, y:y + patch_size_y, x:x + patch_size_x]
+
+            rot = randint(0, 3)
+            batch_image[i, :, :, :] = np.rot90(batch_image[i, :, :, :], rot, axes=(1, 2))
+            batch_label[i, :, :, :] = np.rot90(batch_label[i, :, :, :], rot, axes=(1, 2))
+
+            if randint(0, 1) == 1:
+                batch_image[i, :, :, :] = np.flip(batch_image[i, :, :, :], 0)
+                batch_label[i, :, :, :] = np.flip(batch_label[i, :, :, :], 0)
+
+            if randint(0, 1) == 1:
+                batch_image[i, :, :, :] = np.flip(batch_image[i, :, :, :], 1)
+                batch_label[i, :, :, :] = np.flip(batch_label[i, :, :, :], 1)
+
+            if randint(0, 1) == 1:
+                batch_image[i, :, :, :] = np.flip(batch_image[i, :, :, :], 2)
+                batch_label[i, :, :, :] = np.flip(batch_label[i, :, :, :], 2)
+        
+        if weights is None:
+            yield batch_image, batch_label
+        else:
+            batch_weights = (batch_label*(weights[1]-weights[0])) + weights[0]
+            yield batch_image, batch_label, batch_weights
