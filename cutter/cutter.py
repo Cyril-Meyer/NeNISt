@@ -27,6 +27,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.current_zoom = 50
         self.current_pos_x = 0
         self.current_pos_y = 0
+        self.current_class = 0
+        self.label_opacity = 200
 
         self.current_selection_min_x = 0
         self.current_selection_min_y = 0
@@ -173,6 +175,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.selected_label_row = self.listWidget_labels.currentRow()
         if self.selected_label_row >= 0:
             self.selected_label = self.labels[self.selected_label_row]
+        self.update_view()
 
     def change_slice(self):
         if self.selected_image is not None:
@@ -209,14 +212,35 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.current_selection_size_z = self.spinBox_selection_size_z.value()
         self.update_view()
 
+    def change_label_opacity(self):
+        self.label_opacity = self.spinBox_label_opacity.value()
+        self.update_view()
+
+    def change_class(self):
+        self.current_class = self.spinBox_class.value()
+        self.update_view()
+
     # ---------------------------------------------------------------------------------------------------------------- #
     # update view
     # ---------------------------------------------------------------------------------------------------------------- #
     def update_view(self):
+        color_selection = (0, 204, 0)
+        color_label = (255, 0, 0)
+        color_label_alpha = self.label_opacity
         if self.selected_image is not None:
             data = self.selected_image['data']
+            view = data*255
 
-            view = data[self.current_slice]*255
+            if self.selected_label is not None:
+                min_z, min_y, min_x = self.selected_label['offset']
+                size_z, size_y, size_x, n_class = self.selected_label['shape']
+                label = self.selected_label['data']
+
+                if self.current_class < n_class:
+                    view_area_label = view[min_z:min_z+size_z, min_y:min_y+size_y, min_x:min_x+size_x]
+                    view_area_label[:, :, :] = label[:, :, :,self.current_class]*255
+
+            view = view[self.current_slice]
 
             # todo : remove the and True with an RGB mode selection
             if len(view.shape) == 2 and True:
@@ -231,11 +255,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             w = 4
             if self.current_slice in range(min_z, min_z+size_z):
-                view[min_y:min_y+w, min_x:min_x+size_x] = (255, 0, 0)
-                view[min_y-w+size_y:min_y+size_y, min_x:min_x+size_x] = (255, 0, 0)
-                view[min_y:min_y+size_y, min_x:min_x+w] = (255, 0, 0)
-                view[min_y:min_y+size_y, min_x-w+size_x:min_x+size_x] = (255, 0, 0)
-
+                view[min_y:min_y+w, min_x:min_x+size_x] = color_selection
+                view[min_y-w+size_y:min_y+size_y, min_x:min_x+size_x] = color_selection
+                view[min_y:min_y+size_y, min_x:min_x+w] = color_selection
+                view[min_y:min_y+size_y, min_x-w+size_x:min_x+size_x] = color_selection
 
             z, y, x = data.shape
             zoom = 100-self.current_zoom
