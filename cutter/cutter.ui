@@ -53,7 +53,7 @@
       <item>
        <widget class="QLabel" name="label_zoom">
         <property name="text">
-         <string>  0%</string>
+         <string>50%</string>
         </property>
        </widget>
       </item>
@@ -155,7 +155,7 @@
            <number>1</number>
           </property>
           <property name="value">
-           <number>8</number>
+           <number>16</number>
           </property>
          </widget>
         </item>
@@ -501,6 +501,22 @@
    </hints>
   </connection>
   <connection>
+   <sender>pushButton_predict_selection</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>predict_selection()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>69</x>
+     <y>576</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>verticalSlider_pos_y</sender>
    <signal>valueChanged(int)</signal>
    <receiver>MainWindow</receiver>
@@ -573,6 +589,38 @@
     <hint type="sourcelabel">
      <x>137</x>
      <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>listWidget_labels</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_selected_label()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>137</x>
+     <y>385</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>listWidget_models</sender>
+   <signal>itemSelectionChanged()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>change_selected_model()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>137</x>
+     <y>249</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>

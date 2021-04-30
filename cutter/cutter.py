@@ -31,11 +31,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.current_selection_min_x = 0
         self.current_selection_min_y = 0
         self.current_selection_min_z = 0
-        self.current_selection_size_x = 32
-        self.current_selection_size_y = 32
-        self.current_selection_size_z = 1
+        self.current_selection_size_x = 256
+        self.current_selection_size_y = 256
+        self.current_selection_size_z = 16
 
         self.selected_image_row = 0
+        self.selected_model_row = 0
+        self.selected_label_row = 0
 
         self.selected_image = None
         self.selected_model = None
@@ -61,11 +63,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         for i in self.images:
             self.listWidget_images.addItem(str(i['shape']) + " " + i['name'])
 
+        for m in self.models:
+            self.listWidget_models.addItem(str(m['dim']) + "D " + m['name'])
+
+        for l in self.labels:
+            self.listWidget_labels.addItem(str(l['offset']) + " " + str(l['shape']) + " " + str(l['name']))
+
         self.listWidget_images.setCurrentRow(self.selected_image_row)
+        self.listWidget_models.setCurrentRow(0)
+        self.listWidget_labels.setCurrentRow(0)
+
         self.change_selected_image()
 
     def dialog_add_image(self):
-        images_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des images", "/home/cyril/Documents/Data/")
+        images_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des images", "/home/cyril/Development/NeNISt/cutter_example/")
         for filename in images_filenames[0]:
             print(filename)
 
@@ -89,22 +100,79 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.update_lists()
 
     def dialog_add_model(self):
-        raise NotImplementedError
+        models_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des modèles", "/home/cyril/Development/NeNISt/cutter_example/")
+        for filename in models_filenames[0]:
+            print(filename)
+
+            ext = get_filename_extension(filename)
+            name = os.path.basename(filename)
+
+            if ext == ".h5":
+                model = tf.keras.models.load_model(filename)
+
+            else:
+                err_msg(filename + " extension de fichier invalide")
+                continue
+
+            model = {'name':name,
+                     'dim':len(model.input_shape)-2,
+                     'model':model}
+            self.models.append(model)
+
+        self.update_lists()
+
+    # ---------------------------------------------------------------------------------------------------------------- #
+    # predict
+    # ---------------------------------------------------------------------------------------------------------------- #
+    def predict_selection(self):
+        if self.selected_image is not None and self.selected_model is not None:
+            selection = self.selected_image['data']
+
+            min_x = self.current_selection_min_x
+            min_y = self.current_selection_min_y
+            min_z = self.current_selection_min_z
+            size_x = self.current_selection_size_x
+            size_y = self.current_selection_size_y
+            size_z = self.current_selection_size_z
+
+            selection = selection[min_z:min_z+size_z, min_y:min_y+size_y, min_x:min_x+size_x]
+            selection = np.expand_dims(np.expand_dims(selection, -1), 0)
+
+            prediction = self.selected_model['model'].predict(selection)[0]
+
+            label = {'name':self.selected_image['name'] + self.selected_model['name'],
+                     'shape':prediction.shape,
+                     'offset':(min_z, min_y, min_x),
+                     'data':prediction}
+            self.labels.append(label)
+            self.update_lists()
+        else:
+            err_msg("Pas d'image ou pas de modèle selectionné")
 
     # ---------------------------------------------------------------------------------------------------------------- #
     # change in selection or view
     # ---------------------------------------------------------------------------------------------------------------- #
     def change_selected_image(self):
         self.selected_image_row = self.listWidget_images.currentRow()
-        self.selected_image = self.images[self.listWidget_images.currentRow()]
+        if self.selected_image_row >= 0:
+            self.selected_image = self.images[self.selected_image_row]
+            self.horizontalSlider_slice.setRange(0, self.selected_image['shape'][0]-1)
+            self.horizontalSlider_pos_x.setRange(0, self.selected_image['shape'][2]-self.MIN_VIEW_SIZE)
+            self.verticalSlider_pos_y.setRange(0, self.selected_image['shape'][1]-self.MIN_VIEW_SIZE)
+            self.spinBox_selection_min_x.setRange(0, self.selected_image['shape'][2])
+            self.spinBox_selection_min_y.setRange(0, self.selected_image['shape'][1])
+            self.spinBox_selection_min_z.setRange(0, self.selected_image['shape'][0])
+            self.update_view()
 
-        self.horizontalSlider_slice.setRange(0, self.selected_image['shape'][0]-1)
-        self.horizontalSlider_pos_x.setRange(0, self.selected_image['shape'][2]-self.MIN_VIEW_SIZE)
-        self.verticalSlider_pos_y.setRange(0, self.selected_image['shape'][1]-self.MIN_VIEW_SIZE)
-        self.spinBox_selection_min_x.setRange(0, self.selected_image['shape'][2])
-        self.spinBox_selection_min_y.setRange(0, self.selected_image['shape'][1])
-        self.spinBox_selection_min_z.setRange(0, self.selected_image['shape'][0])
-        self.update_view()
+    def change_selected_model(self):
+        self.selected_model_row = self.listWidget_models.currentRow()
+        if self.selected_model_row >= 0:
+            self.selected_model = self.models[self.selected_model_row]
+
+    def change_selected_label(self):
+        self.selected_label_row = self.listWidget_labels.currentRow()
+        if self.selected_label_row >= 0:
+            self.selected_label = self.labels[self.selected_label_row]
 
     def change_slice(self):
         if self.selected_image is not None:
