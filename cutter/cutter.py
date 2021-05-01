@@ -228,26 +228,33 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def update_view(self):
         color_selection = (0, 204, 0)
         color_label = (255, 0, 0)
-        color_label_alpha = self.label_opacity
+        color_label_alpha = self.label_opacity / 255.0
         if self.selected_image is not None:
             data = self.selected_image['data']
-            view = data*255
+            # select slice
+            view = data[self.current_slice]
 
+            # GraysSale to RGB
+            # todo : remove the and True with an RGB mode selection
+            if len(view.shape) == 2 and True:
+                view = np.stack((view,) * 3, axis=-1)
+
+            # label superposition
             if self.selected_label is not None:
                 min_z, min_y, min_x = self.selected_label['offset']
                 size_z, size_y, size_x, n_class = self.selected_label['shape']
                 label = self.selected_label['data']
 
-                if self.current_class < n_class:
-                    view_area_label = view[min_z:min_z+size_z, min_y:min_y+size_y, min_x:min_x+size_x]
-                    view_area_label[:, :, :] = label[:, :, :,self.current_class]*255
+                if self.current_slice in range(min_z, size_z+1) and self.current_class < n_class:
+                    label = label[self.current_slice-min_z]
+                    view[min_y:min_y + size_y, min_x:min_x + size_x, 0] = \
+                        view[min_y:min_y + size_y, min_x:min_x + size_x, 0] + \
+                        label[:, :, self.current_class]*1.0 * color_label_alpha
 
-            view = view[self.current_slice]
+            # [0,1] -> [0,255]
+            view = np.clip(view, 0, 1)*255
 
-            # todo : remove the and True with an RGB mode selection
-            if len(view.shape) == 2 and True:
-                view = np.stack((view,) * 3, axis=-1)
-
+            # full slice to GUI selected area
             min_x = self.current_selection_min_x
             min_y = self.current_selection_min_y
             min_z = self.current_selection_min_z
@@ -268,6 +275,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             zoom_y = int(max(self.MIN_VIEW_SIZE, int((y/100)*zoom)))
             view = view[self.current_pos_y:zoom_y+self.current_pos_y, self.current_pos_x:self.current_pos_x+zoom_x]
 
+            # NumPy array to QLabel
             if len(view.shape) in [2, 3]:
                 pixmap = QPixmap(qimage2ndarray.array2qimage(view))
                 pixmap = pixmap.scaled(self.label_main_view.geometry().width()-10-int(self.xsize*0.05),
