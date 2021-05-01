@@ -6,6 +6,6 @@
   * `python -m venv venv`
 * Selection le venv
   * linux `source ./venv/bin/activate`
-  * windows `activate.bat`
+  * windows `call ./venv/Scripts/activate.bat`
 * Installer les requirements
   * `pip install -r requirements.txt`
