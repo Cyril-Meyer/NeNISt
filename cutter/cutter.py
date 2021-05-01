@@ -15,6 +15,8 @@ from PyQt5.QtWidgets import *
 from cutterui import Ui_MainWindow
 from utils import *
 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
