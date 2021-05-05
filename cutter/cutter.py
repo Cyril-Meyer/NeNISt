@@ -229,31 +229,34 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             size_y = self.current_selection_size_y
             size_z = self.current_selection_size_z
 
+            overlap = 1
+            if self.checkBox_overlap.isChecked():
+                overlap = 2
+
             if self.selected_model['dim'] == 3:
                 def predict(x):
                     tf.keras.backend.clear_session()
                     return self.selected_model['model'].predict(x)
 
-                prediction = lii.infer(image,
-                                       (self.current_selection_size_z,
-                                        self.current_selection_size_y,
-                                        self.current_selection_size_x),
-                                       predict,
-                                       (2, 2, 2), verbose=1)
             elif self.selected_model['dim'] == 2:
                 def predict(x):
                     tf.keras.backend.clear_session()
                     x = x[0]
                     return np.expand_dims(self.selected_model['model'].predict(x), 0)
 
-                prediction = lii.infer(image,
-                                       (1,
-                                        self.current_selection_size_y,
-                                        self.current_selection_size_x),
-                                       predict,
-                                       (1, 2, 2), verbose=1)
+                if overlap == 2:
+                    overlap = (1, 2, 2)
+                size_z = 1
             else:
                 raise NotImplementedError
+
+            prediction = lii.infer(image,
+                                   (size_z,
+                                    size_y,
+                                    size_x),
+                                   predict,
+                                   overlap,
+                                   verbose=1)
 
             label = {'name': self.selected_image['name'] + self.selected_model['name'],
                      'shape': prediction.shape,
