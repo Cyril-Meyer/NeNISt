@@ -54,3 +54,4 @@ urllib3==1.26.4
 Werkzeug==1.0.1
 wrapt==1.12.1
 zipp==3.4.1
+git+git://github.com/Cyril-Meyer/lii

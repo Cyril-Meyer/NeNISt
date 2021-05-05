@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from skimage import io
 import qimage2ndarray
+from lii import LargeImageInference as lii
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
@@ -145,8 +146,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             selection = selection[min_z:min_z+size_z, min_y:min_y+size_y, min_x:min_x+size_x]
             selection = np.expand_dims(np.expand_dims(selection, -1), 0)
 
-            # prediction = self.selected_model['model'].predict(selection)[0]
-            prediction = self.selected_model['model'](selection, training=False)[0]
+            if self.selected_model['dim'] == 3:
+                # prediction = self.selected_model['model'].predict(selection)[0]
+                prediction = self.selected_model['model'](selection, training=False)[0]
+            elif self.selected_model['dim'] == 2:
+                prediction = []
+                for z in range(size_z):
+                    pred = self.selected_model['model'](selection[:, z, :, :, :], training=False)[0]
+                    prediction.append(pred)
+                prediction = np.array(prediction)
+            else:
+                raise NotImplementedError
 
             label = {'name':self.selected_image['name'] + self.selected_model['name'],
                      'shape':prediction.shape,
@@ -158,7 +168,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             err_msg("Pas d'image ou pas de modèle selectionné")
 
     def predict_full_image(self):
-        raise NotImplementedError
+        # raise NotImplementedError
         if self.selected_image is not None and self.selected_model is not None:
             # image = np.expand_dims(np.expand_dims(self.selected_image['data'], -1), 0)
             image = np.expand_dims(self.selected_image['data'], -1)
@@ -166,7 +176,38 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             size_y = self.current_selection_size_y
             size_z = self.current_selection_size_z
 
+            if self.selected_model['dim'] == 3:
+                def predict(x):
+                    tf.keras.backend.clear_session()
+                    return self.selected_model['model'].predict(x)
 
+                prediction = lii.infer(image,
+                                       (self.current_selection_size_z,
+                                        self.current_selection_size_y,
+                                        self.current_selection_size_x),
+                                       predict,
+                                       (2, 2, 2), verbose=1)
+            elif self.selected_model['dim'] == 2:
+                def predict(x):
+                    tf.keras.backend.clear_session()
+                    x = x[0]
+                    return np.expand_dims(self.selected_model['model'].predict(x), 0)
+
+                prediction = lii.infer(image,
+                                       (1,
+                                        self.current_selection_size_y,
+                                        self.current_selection_size_x),
+                                       predict,
+                                       (1, 2, 2), verbose=1)
+            else:
+                raise NotImplementedError
+
+            label = {'name': self.selected_image['name'] + self.selected_model['name'],
+                     'shape': prediction.shape,
+                     'offset': (0, 0, 0),
+                     'data': prediction}
+            self.labels.append(label)
+            self.update_lists()
         else:
             err_msg("Pas d'image ou pas de modèle selectionné")
 
