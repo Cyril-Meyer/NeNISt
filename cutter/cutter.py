@@ -5,6 +5,7 @@ import time
 import numpy as np
 import tensorflow as tf
 from skimage import io
+import h5py
 import qimage2ndarray
 from lii import LargeImageInference as lii
 
@@ -81,7 +82,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_selected_image()
 
     def dialog_add_image(self):
-        images_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des images", "/home/cyril/Development/NeNISt/cutter_example/")
+        images_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des images",
+                                                        "/home/cyril/Development/NeNISt/cutter_example/")
         for filename in images_filenames[0]:
             print(filename)
 
@@ -97,15 +99,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 err_msg(filename + " extension de fichier invalide")
                 continue
 
-            image = {'name':name,
-                     'shape':data.shape,
-                     'data':data}
+            image = {'name': name,
+                     'shape': data.shape,
+                     'data': data}
             self.images.append(image)
 
         self.update_lists()
 
     def dialog_add_model(self):
-        models_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des modèles", "/home/cyril/Development/NeNISt/cutter_example/")
+        models_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des modèles",
+                                                        "/home/cyril/Development/NeNISt/cutter_example/")
         for filename in models_filenames[0]:
             print(filename)
 
@@ -121,12 +124,62 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             # print(model.count_params())
 
-            model = {'name':name,
-                     'dim':len(model.input_shape)-2,
-                     'model':model}
+            model = {'name': name,
+                     'dim': len(model.input_shape)-2,
+                     'model': model}
             self.models.append(model)
 
         self.update_lists()
+
+    def dialog_add_label(self):
+        labels_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des étiquettes",
+                                                        "/home/cyril/Development/NeNISt/cutter_example/")
+        for filename in labels_filenames[0]:
+            print(filename)
+
+            ext = get_filename_extension(filename)
+            name = os.path.basename(filename)
+
+            if ext == ".h5":
+                h5f = h5py.File(filename, 'r')
+            else:
+                err_msg(filename + " extension de fichier invalide")
+                continue
+            shape = tuple(h5f['shape'])
+
+            data = np.zeros(shape)
+            for c in range(shape[-1]):
+                data[:, :, :, c] = np.array(h5f[f"data_{c}"])
+
+            label = {'name': str(np.array(h5f['name'])),
+                     'shape': shape,
+                     'offset': tuple(h5f['offset']),
+                     'data': data}
+
+            self.labels.append(label)
+
+        self.update_lists()
+
+    # ---------------------------------------------------------------------------------------------------------------- #
+    # outputs
+    # ---------------------------------------------------------------------------------------------------------------- #
+    def export_selected_label(self):
+        if self.selected_label is not None:
+            label_filename = QFileDialog.getSaveFileName(self, "Sélectionner le fichier",
+                                                         "/home/cyril/Development/NeNISt/cutter_example/",
+                                                         "HDF5 files (*.h5)")[0]
+
+            if not get_filename_extension(label_filename) == ".h5":
+                label_filename = label_filename + ".h5"
+
+            h5f = h5py.File(label_filename, "w")
+            h5f.create_dataset("name", data=self.selected_label['name'])
+            for c in range(self.selected_label['data'].shape[-1]):
+                h5f.create_dataset(f"data_{c}", data=self.selected_label['data'][:, :, :, c])
+            h5f.create_dataset("shape", data=self.selected_label['shape'])
+            h5f.create_dataset("offset", data=self.selected_label['offset'])
+        else:
+            err_msg("Aucune étiquette sélectionnée")
 
     # ---------------------------------------------------------------------------------------------------------------- #
     # predict
