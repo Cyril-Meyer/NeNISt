@@ -118,6 +118,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 err_msg(filename + " extension de fichier invalide")
                 continue
 
+            # print(model.count_params())
+
             model = {'name':name,
                      'dim':len(model.input_shape)-2,
                      'model':model}
@@ -129,6 +131,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     # predict
     # ---------------------------------------------------------------------------------------------------------------- #
     def predict_selection(self):
+        tf.keras.backend.clear_session()
         if self.selected_image is not None and self.selected_model is not None:
             selection = self.selected_image['data']
 
@@ -142,7 +145,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             selection = selection[min_z:min_z+size_z, min_y:min_y+size_y, min_x:min_x+size_x]
             selection = np.expand_dims(np.expand_dims(selection, -1), 0)
 
-            prediction = self.selected_model['model'].predict(selection)[0]
+            # prediction = self.selected_model['model'].predict(selection)[0]
+            prediction = self.selected_model['model'](selection, training=False)[0]
 
             label = {'name':self.selected_image['name'] + self.selected_model['name'],
                      'shape':prediction.shape,
@@ -150,6 +154,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                      'data':prediction}
             self.labels.append(label)
             self.update_lists()
+        else:
+            err_msg("Pas d'image ou pas de modèle selectionné")
+
+    def predict_full_image(self):
+        raise NotImplementedError
+        if self.selected_image is not None and self.selected_model is not None:
+            # image = np.expand_dims(np.expand_dims(self.selected_image['data'], -1), 0)
+            image = np.expand_dims(self.selected_image['data'], -1)
+            size_x = self.current_selection_size_x
+            size_y = self.current_selection_size_y
+            size_z = self.current_selection_size_z
+
+
         else:
             err_msg("Pas d'image ou pas de modèle selectionné")
 

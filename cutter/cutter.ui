@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>600</height>
+    <height>606</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -440,23 +440,29 @@
        <layout class="QHBoxLayout" name="horizontalLayout_predict">
         <item>
          <widget class="QPushButton" name="pushButton_predict_selection">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Prédire sélection</string>
           </property>
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+         <widget class="QPushButton" name="pushButton_predict_image">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
+          <property name="text">
+           <string>Prédire image</string>
           </property>
-         </spacer>
+         </widget>
         </item>
        </layout>
       </item>
@@ -602,8 +608,8 @@
    <slot>change_slice()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>660</x>
-     <y>574</y>
+     <x>755</x>
+     <y>594</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -803,6 +809,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_predict_image</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>predict_full_image()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>202</x>
+     <y>582</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>302</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>dialog_add_image()</slot>
@@ -820,5 +842,6 @@
   <slot>center_selection()</slot>
   <slot>change_class()</slot>
   <slot>change_label_opacity()</slot>
+  <slot>predict_full_image()</slot>
  </slots>
 </ui>
