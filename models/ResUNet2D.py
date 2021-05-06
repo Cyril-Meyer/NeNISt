@@ -4,6 +4,8 @@ import numpy as np
 from tensorflow.keras.layers import BatchNormalization, Conv2D, Cropping2D, Conv2DTranspose, concatenate
 from tensorflow.keras.layers import Dropout, MaxPooling2D, Activation, Add
 
+# Alternative can be :
+# https://github.com/Nishanksingla/UNet-with-ResBlock/blob/master/resnet34_unet_model.py
 
 def conv_block(input, filters, kernel_size=3, conv_per_block=2, dropout=0, batch_normalization=False, groups=1):
     # X represent the output of the previous layer
