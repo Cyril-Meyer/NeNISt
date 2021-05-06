@@ -5,7 +5,9 @@ import time
 import numpy as np
 import tensorflow as tf
 from skimage import io
+import h5py
 import qimage2ndarray
+from lii import LargeImageInference as lii
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
@@ -80,7 +82,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.change_selected_image()
 
     def dialog_add_image(self):
-        images_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des images", "/home/cyril/Development/NeNISt/cutter_example/")
+        images_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des images",
+                                                        "/home/cyril/Development/NeNISt/cutter_example/")
         for filename in images_filenames[0]:
             print(filename)
 
@@ -96,15 +99,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 err_msg(filename + " extension de fichier invalide")
                 continue
 
-            image = {'name':name,
-                     'shape':data.shape,
-                     'data':data}
+            image = {'name': name,
+                     'shape': data.shape,
+                     'data': data}
             self.images.append(image)
 
         self.update_lists()
 
     def dialog_add_model(self):
-        models_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des modèles", "/home/cyril/Development/NeNISt/cutter_example/")
+        models_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des modèles",
+                                                        "/home/cyril/Development/NeNISt/cutter_example/")
         for filename in models_filenames[0]:
             print(filename)
 
@@ -120,12 +124,62 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             # print(model.count_params())
 
-            model = {'name':name,
-                     'dim':len(model.input_shape)-2,
-                     'model':model}
+            model = {'name': name,
+                     'dim': len(model.input_shape)-2,
+                     'model': model}
             self.models.append(model)
 
         self.update_lists()
+
+    def dialog_add_label(self):
+        labels_filenames = QFileDialog.getOpenFileNames(self, "Sélectionner des étiquettes",
+                                                        "/home/cyril/Development/NeNISt/cutter_example/")
+        for filename in labels_filenames[0]:
+            print(filename)
+
+            ext = get_filename_extension(filename)
+            name = os.path.basename(filename)
+
+            if ext == ".h5":
+                h5f = h5py.File(filename, 'r')
+            else:
+                err_msg(filename + " extension de fichier invalide")
+                continue
+            shape = tuple(h5f['shape'])
+
+            data = np.zeros(shape)
+            for c in range(shape[-1]):
+                data[:, :, :, c] = np.array(h5f[f"data_{c}"])
+
+            label = {'name': str(np.array(h5f['name'])),
+                     'shape': shape,
+                     'offset': tuple(h5f['offset']),
+                     'data': data}
+
+            self.labels.append(label)
+
+        self.update_lists()
+
+    # ---------------------------------------------------------------------------------------------------------------- #
+    # outputs
+    # ---------------------------------------------------------------------------------------------------------------- #
+    def export_selected_label(self):
+        if self.selected_label is not None:
+            label_filename = QFileDialog.getSaveFileName(self, "Sélectionner le fichier",
+                                                         "/home/cyril/Development/NeNISt/cutter_example/",
+                                                         "HDF5 files (*.h5)")[0]
+
+            if not get_filename_extension(label_filename) == ".h5":
+                label_filename = label_filename + ".h5"
+
+            h5f = h5py.File(label_filename, "w")
+            h5f.create_dataset("name", data=self.selected_label['name'])
+            for c in range(self.selected_label['data'].shape[-1]):
+                h5f.create_dataset(f"data_{c}", data=self.selected_label['data'][:, :, :, c])
+            h5f.create_dataset("shape", data=self.selected_label['shape'])
+            h5f.create_dataset("offset", data=self.selected_label['offset'])
+        else:
+            err_msg("Aucune étiquette sélectionnée")
 
     # ---------------------------------------------------------------------------------------------------------------- #
     # predict
@@ -145,8 +199,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             selection = selection[min_z:min_z+size_z, min_y:min_y+size_y, min_x:min_x+size_x]
             selection = np.expand_dims(np.expand_dims(selection, -1), 0)
 
-            # prediction = self.selected_model['model'].predict(selection)[0]
-            prediction = self.selected_model['model'](selection, training=False)[0]
+            if self.selected_model['dim'] == 3:
+                # prediction = self.selected_model['model'].predict(selection)[0]
+                prediction = self.selected_model['model'](selection, training=False)[0]
+            elif self.selected_model['dim'] == 2:
+                prediction = []
+                for z in range(size_z):
+                    pred = self.selected_model['model'](selection[:, z, :, :, :], training=False)[0]
+                    prediction.append(pred)
+                prediction = np.array(prediction)
+            else:
+                raise NotImplementedError
 
             label = {'name':self.selected_image['name'] + self.selected_model['name'],
                      'shape':prediction.shape,
@@ -158,7 +221,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             err_msg("Pas d'image ou pas de modèle selectionné")
 
     def predict_full_image(self):
-        raise NotImplementedError
+        # raise NotImplementedError
         if self.selected_image is not None and self.selected_model is not None:
             # image = np.expand_dims(np.expand_dims(self.selected_image['data'], -1), 0)
             image = np.expand_dims(self.selected_image['data'], -1)
@@ -166,7 +229,41 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             size_y = self.current_selection_size_y
             size_z = self.current_selection_size_z
 
+            overlap = 1
+            if self.checkBox_overlap.isChecked():
+                overlap = 2
 
+            if self.selected_model['dim'] == 3:
+                def predict(x):
+                    tf.keras.backend.clear_session()
+                    return self.selected_model['model'].predict(x)
+
+            elif self.selected_model['dim'] == 2:
+                def predict(x):
+                    tf.keras.backend.clear_session()
+                    x = x[0]
+                    return np.expand_dims(self.selected_model['model'].predict(x), 0)
+
+                if overlap == 2:
+                    overlap = (1, 2, 2)
+                size_z = 1
+            else:
+                raise NotImplementedError
+
+            prediction = lii.infer(image,
+                                   (size_z,
+                                    size_y,
+                                    size_x),
+                                   predict,
+                                   overlap,
+                                   verbose=1)
+
+            label = {'name': self.selected_image['name'] + self.selected_model['name'],
+                     'shape': prediction.shape,
+                     'offset': (0, 0, 0),
+                     'data': prediction}
+            self.labels.append(label)
+            self.update_lists()
         else:
             err_msg("Pas d'image ou pas de modèle selectionné")
 

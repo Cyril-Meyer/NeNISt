@@ -130,83 +130,10 @@
       </item>
       <item row="7" column="0" colspan="3">
        <layout class="QGridLayout" name="gridLayout_selection">
-        <item row="0" column="2">
-         <widget class="QSpinBox" name="spinBox_class">
-          <property name="maximum">
-           <number>4096</number>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="0">
-         <widget class="QLabel" name="label_selection_y">
-          <property name="text">
-           <string>Y</string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="0" colspan="2">
          <widget class="QLabel" name="label_class">
           <property name="text">
            <string>Classe affiché</string>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="2">
-         <widget class="QSpinBox" name="spinBox_selection_size_z">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimum">
-           <number>1</number>
-          </property>
-          <property name="maximum">
-           <number>4096</number>
-          </property>
-          <property name="singleStep">
-           <number>1</number>
-          </property>
-          <property name="value">
-           <number>16</number>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="1">
-         <widget class="QSpinBox" name="spinBox_selection_min_z">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximum">
-           <number>0</number>
-          </property>
-          <property name="singleStep">
-           <number>1</number>
-          </property>
-         </widget>
-        </item>
-        <item row="6" column="0">
-         <widget class="QLabel" name="label_selection_z">
-          <property name="text">
-           <string>Z</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="2">
-         <widget class="QPushButton" name="pushButton_center_selection">
-          <property name="text">
-           <string>vue actuelle</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0" colspan="2">
-         <widget class="QLabel" name="label_selection">
-          <property name="text">
-           <string>Sélection</string>
           </property>
          </widget>
         </item>
@@ -217,51 +144,6 @@
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="5" column="1">
-         <widget class="QSpinBox" name="spinBox_selection_min_y">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="maximum">
-           <number>0</number>
-          </property>
-          <property name="singleStep">
-           <number>1</number>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="2">
-         <widget class="QSpinBox" name="spinBox_selection_size_x">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>1</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="minimum">
-           <number>32</number>
-          </property>
-          <property name="maximum">
-           <number>4096</number>
-          </property>
-          <property name="singleStep">
-           <number>32</number>
-          </property>
-          <property name="value">
-           <number>256</number>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="0">
-         <widget class="QLabel" name="label_selection_x">
-          <property name="text">
-           <string>X</string>
           </property>
          </widget>
         </item>
@@ -287,8 +169,54 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QSpinBox" name="spinBox_selection_min_x">
+        <item row="0" column="2">
+         <widget class="QSpinBox" name="spinBox_class">
+          <property name="maximum">
+           <number>4096</number>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2">
+         <widget class="QSpinBox" name="spinBox_selection_size_z">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimum">
+           <number>1</number>
+          </property>
+          <property name="maximum">
+           <number>4096</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+          <property name="value">
+           <number>16</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="QSpinBox" name="spinBox_label_opacity">
+          <property name="maximum">
+           <number>255</number>
+          </property>
+          <property name="value">
+           <number>200</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2">
+         <widget class="QLabel" name="label_selection">
+          <property name="text">
+           <string>Sélection</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1">
+         <widget class="QSpinBox" name="spinBox_selection_min_y">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
             <horstretch>1</horstretch>
@@ -313,6 +241,42 @@
           </property>
          </widget>
         </item>
+        <item row="4" column="0">
+         <widget class="QLabel" name="label_selection_x">
+          <property name="text">
+           <string>X</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QSpinBox" name="spinBox_selection_size_x">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimum">
+           <number>32</number>
+          </property>
+          <property name="maximum">
+           <number>4096</number>
+          </property>
+          <property name="singleStep">
+           <number>32</number>
+          </property>
+          <property name="value">
+           <number>256</number>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="label_selection_z">
+          <property name="text">
+           <string>Z</string>
+          </property>
+         </widget>
+        </item>
         <item row="1" column="0" colspan="2">
          <widget class="QLabel" name="label_label_opacity">
           <property name="text">
@@ -320,13 +284,59 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
-         <widget class="QSpinBox" name="spinBox_label_opacity">
-          <property name="maximum">
-           <number>255</number>
+        <item row="5" column="0">
+         <widget class="QLabel" name="label_selection_y">
+          <property name="text">
+           <string>Y</string>
           </property>
-          <property name="value">
-           <number>200</number>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QSpinBox" name="spinBox_selection_min_x">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximum">
+           <number>0</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QSpinBox" name="spinBox_selection_min_z">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="maximum">
+           <number>0</number>
+          </property>
+          <property name="singleStep">
+           <number>1</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2">
+         <widget class="QPushButton" name="pushButton_center_selection">
+          <property name="text">
+           <string>vue actuelle</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1" colspan="2">
+         <widget class="QCheckBox" name="checkBox_overlap">
+          <property name="text">
+           <string>Prédiction avec chevauchement</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
@@ -381,7 +391,7 @@
       <item row="5" column="1">
        <widget class="QPushButton" name="pushButton_add_label">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="maximumSize">
          <size>
@@ -405,9 +415,9 @@
        </widget>
       </item>
       <item row="5" column="2">
-       <widget class="QPushButton" name="pushButton_remove_label">
+       <widget class="QPushButton" name="pushButton_export_label">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="maximumSize">
          <size>
@@ -416,7 +426,7 @@
          </size>
         </property>
         <property name="text">
-         <string>-</string>
+         <string>↗</string>
         </property>
        </widget>
       </item>
@@ -476,7 +486,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>
@@ -489,7 +499,7 @@
   <tabstop>pushButton_remove_model</tabstop>
   <tabstop>listWidget_models</tabstop>
   <tabstop>pushButton_add_label</tabstop>
-  <tabstop>pushButton_remove_label</tabstop>
+  <tabstop>pushButton_export_label</tabstop>
   <tabstop>listWidget_labels</tabstop>
   <tabstop>spinBox_selection_min_x</tabstop>
   <tabstop>spinBox_selection_size_x</tabstop>
@@ -672,8 +682,8 @@
    <slot>center_selection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>206</x>
-     <y>424</y>
+     <x>264</x>
+     <y>466</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -688,8 +698,8 @@
    <slot>update_selection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>206</x>
-     <y>478</y>
+     <x>264</x>
+     <y>511</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -704,8 +714,8 @@
    <slot>update_selection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>206</x>
-     <y>510</y>
+     <x>264</x>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -720,8 +730,8 @@
    <slot>update_selection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>84</x>
-     <y>478</y>
+     <x>107</x>
+     <y>511</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -736,8 +746,8 @@
    <slot>update_selection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>84</x>
-     <y>510</y>
+     <x>107</x>
+     <y>537</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -752,8 +762,8 @@
    <slot>update_selection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>84</x>
-     <y>542</y>
+     <x>107</x>
+     <y>563</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -768,8 +778,8 @@
    <slot>update_selection()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>206</x>
-     <y>542</y>
+     <x>264</x>
+     <y>563</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -784,8 +794,8 @@
    <slot>change_class()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>206</x>
-     <y>366</y>
+     <x>264</x>
+     <y>411</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -800,8 +810,8 @@
    <slot>change_label_opacity()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>206</x>
-     <y>397</y>
+     <x>264</x>
+     <y>437</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -818,6 +828,38 @@
     <hint type="sourcelabel">
      <x>202</x>
      <y>582</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>302</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_add_label</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>dialog_add_label()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>222</x>
+     <y>282</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>302</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_export_label</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>export_selected_label()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>253</x>
+     <y>282</y>
     </hint>
     <hint type="destinationlabel">
      <x>399</x>
@@ -843,5 +885,6 @@
   <slot>change_class()</slot>
   <slot>change_label_opacity()</slot>
   <slot>predict_full_image()</slot>
+  <slot>export_selected_label()</slot>
  </slots>
 </ui>
