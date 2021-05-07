@@ -6,6 +6,7 @@ import numpy as np
 import tensorflow as tf
 from skimage import io
 import h5py
+from tqdm import tqdm
 import qimage2ndarray
 from lii import LargeImageInference as lii
 
@@ -18,6 +19,7 @@ from cutterui import Ui_MainWindow
 from utils import *
 
 os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+VERBOSE = 1
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -197,6 +199,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             size_z = self.current_selection_size_z
 
             selection = selection[min_z:min_z+size_z, min_y:min_y+size_y, min_x:min_x+size_x]
+            if not selection.shape == (size_z, size_y, size_x):
+                err_msg(f"La selection déborde : {selection.shape} est différent de {(size_z, size_y, size_x)}")
+                return
+
             selection = np.expand_dims(np.expand_dims(selection, -1), 0)
 
             if self.selected_model['dim'] == 3:
@@ -204,7 +210,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 prediction = self.selected_model['model'](selection, training=False)[0]
             elif self.selected_model['dim'] == 2:
                 prediction = []
-                for z in range(size_z):
+                for z in tqdm(range(size_z), disable=(not VERBOSE >= 2)):
                     pred = self.selected_model['model'](selection[:, z, :, :, :], training=False)[0]
                     prediction.append(pred)
                 prediction = np.array(prediction)
@@ -256,7 +262,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                     size_x),
                                    predict,
                                    overlap,
-                                   verbose=1)
+                                   verbose=VERBOSE)
 
             label = {'name': self.selected_image['name'] + self.selected_model['name'],
                      'shape': prediction.shape,
