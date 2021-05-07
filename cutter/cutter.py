@@ -365,7 +365,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 size_z, size_y, size_x, n_class = self.selected_label['shape']
                 label = self.selected_label['data']
 
-                if self.current_slice in range(min_z, size_z+1) and self.current_class < n_class:
+                if self.current_slice in range(min_z, min_z+size_z) and self.current_class < n_class:
                     label = label[self.current_slice-min_z]
                     view[min_y:min_y + size_y, min_x:min_x + size_x, 0] = \
                         view[min_y:min_y + size_y, min_x:min_x + size_x, 0] + \
