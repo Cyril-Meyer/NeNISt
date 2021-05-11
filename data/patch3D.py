@@ -65,8 +65,8 @@ def gen_patches_batch_augmented_3d_bin_nochan(patch_size_x, patch_size_y, patch_
             batch_label[i, :, :, :] = label[x:x + patch_size_x, y:y + patch_size_y, z:z + patch_size_z]
 
             rot = randint(0, 3)
-            batch_image[i, :, :, :] = np.rot90(batch_image[i, :, :, :], rot, axes=(0, 1))
-            batch_label[i, :, :, :] = np.rot90(batch_label[i, :, :, :], rot, axes=(0, 1))
+            batch_image[i, :, :, :] = np.rot90(batch_image[i, :, :, :], rot, axes=(1, 2))
+            batch_label[i, :, :, :] = np.rot90(batch_label[i, :, :, :], rot, axes=(1, 2))
 
             if randint(0, 1) == 1:
                 batch_image[i, :, :, :] = np.flip(batch_image[i, :, :, :], 0)

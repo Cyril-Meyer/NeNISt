@@ -45,7 +45,7 @@ def gen_patches_batch_augmented_2d_bin(patch_size_y, patch_size_x, image, label,
             batch_weights = (batch_label*(weights[1]-weights[0])) + weights[0]
             yield batch_image, batch_label, batch_weights
 
-                
+
 def gen_patches_batch_augmented_label_indexes_one_hot(patch_size, image, label, label_indexes, batch_size=32):
     n_label = label[0].shape[-1]
     label_indexes_iter = []

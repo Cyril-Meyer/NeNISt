@@ -17,10 +17,10 @@ from skimage import io
 print("READ")
 
 PATH_IN = "/HDD1/data/MitoEM/MitoEM-H/"
-PATH_OUT = "/home/cyril/Documents/Data/MitoEM/MitoEM-H/"
+PATH_OUT = "/HDD1/data/MitoEM/MitoEM-H/"
 '''
 PATH_IN = "/HDD1/data/MitoEM/MitoEM-R/"
-PATH_OUT = "/home/cyril/Documents/Data/MitoEM/MitoEM-R/"
+PATH_OUT = "/HDD1/data/MitoEM/MitoEM-R/"
 '''
 
 image_train = np.array(skimage.io.imread(PATH_IN + "im_train.tif")).astype(np.float16)
