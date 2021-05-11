@@ -6,8 +6,6 @@
 #
 # ------------------------------------------------------------ #
 
-raise NotImplementedError
-
 import os
 import numpy as np
 import data.datasets.MitoEMH_dt as D1
