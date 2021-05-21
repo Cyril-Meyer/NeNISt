@@ -170,6 +170,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             label_filename = QFileDialog.getSaveFileName(self, "Sélectionner le fichier",
                                                          "/home/cyril/Development/NeNISt/cutter_example/",
                                                          "HDF5 files (*.h5)")[0]
+            if label_filename == '':
+                ok_msg("Aucune fichier sélectionnée")
+                return
 
             if not get_filename_extension(label_filename) == ".h5":
                 label_filename = label_filename + ".h5"
