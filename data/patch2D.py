@@ -168,3 +168,35 @@ def gen_patches_batch_augmented_2d(patch_size_y, patch_size_x, n_classes, image,
         else:
             batch_weights = (batch_label*(weights[1]-weights[0])) + weights[0]
             yield batch_image, batch_label, batch_weights
+
+
+def gen_2d_patches_batch_from_multiple_images_augmented(patch_size_y, patch_size_x, images, labels, batch_size=32):
+    batch_image = np.zeros((batch_size, patch_size_y, patch_size_x, 1), dtype=images[0].dtype)
+    batch_label = np.zeros((batch_size, patch_size_y, patch_size_x, labels[0].shape[-1]), dtype=labels[0].dtype)
+    
+    while True:
+        for i in range(batch_size):
+            imgid = randint(0, len(images)-1)
+            image = images[imgid]
+            label = labels[imgid]
+            
+            x = randint(0, image.shape[2] - patch_size_x)
+            y = randint(0, image.shape[1] - patch_size_y)
+            z = randint(0, image.shape[0] - 1)
+            
+            batch_image[i, :, :, 0] = image[z, y:y + patch_size_y, x:x + patch_size_x]
+            batch_label[i, :, :, :] = label[z, y:y + patch_size_y, x:x + patch_size_x]
+
+            rot = randint(0, 3)
+            batch_image[i, :, :] = np.rot90(batch_image[i, :, :], rot, axes=(0, 1))
+            batch_label[i, :, :] = np.rot90(batch_label[i, :, :], rot, axes=(0, 1))
+
+            if randint(0, 1) == 1:
+                batch_image[i, :, :] = np.flip(batch_image[i, :, :], 0)
+                batch_label[i, :, :] = np.flip(batch_label[i, :, :], 0)
+
+            if randint(0, 1) == 1:
+                batch_image[i, :, :] = np.flip(batch_image[i, :, :], 1)
+                batch_label[i, :, :] = np.flip(batch_label[i, :, :], 1)
+        
+        yield batch_image, batch_label
