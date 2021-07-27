@@ -181,6 +181,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             h5f.create_dataset("name", data=self.selected_label['name'])
             for c in range(self.selected_label['data'].shape[-1]):
                 h5f.create_dataset(f"data_{c}", data=self.selected_label['data'][:, :, :, c])
+                # h5f.create_dataset(f"data_{c}", data=self.selected_label['data'][::2, ::2, ::2, c])
             h5f.create_dataset("shape", data=self.selected_label['shape'])
             h5f.create_dataset("offset", data=self.selected_label['offset'])
         else:
@@ -209,12 +210,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             selection = np.expand_dims(np.expand_dims(selection, -1), 0)
 
             if self.selected_model['dim'] == 3:
-                # prediction = self.selected_model['model'].predict(selection)[0]
-                prediction = self.selected_model['model'](selection, training=False)[0]
+                # prediction = self.selected_model['model'](selection, training=False)[0]
+                prediction = self.selected_model['model'].predict(selection)[0]
             elif self.selected_model['dim'] == 2:
                 prediction = []
                 for z in tqdm(range(size_z), disable=(not VERBOSE >= 2)):
-                    pred = self.selected_model['model'](selection[:, z, :, :, :], training=False)[0]
+                    # pred = self.selected_model['model'](selection[:, z, :, :, :], training=False)[0]
+                    pred = self.selected_model['model'].predict(selection[:, z, :, :, :])[0]
                     prediction.append(pred)
                 prediction = np.array(prediction)
             else:
