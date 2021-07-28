@@ -54,6 +54,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.models = []
         self.labels = []
 
+        self.current_view_shape = None
+        self.main_view_pixmap_size = None
+
         self.mouse_left_pressed = False
         self.mouse_right_pressed = False
 
@@ -81,8 +84,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.listWidget_labels.addItem(str(l['offset']) + " " + str(l['shape']) + " " + str(l['name']))
 
         self.listWidget_images.setCurrentRow(self.selected_image_row)
-        self.listWidget_models.setCurrentRow(0)
-        self.listWidget_labels.setCurrentRow(0)
+        self.listWidget_models.setCurrentRow(self.selected_model_row)
+        self.listWidget_labels.setCurrentRow(self.selected_label_row)
 
         self.change_selected_image()
 
@@ -327,12 +330,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.current_pos_y = self.verticalSlider_pos_y.value()
         self.update_view()
 
-    def center_selection(self):
-        self.spinBox_selection_min_x.setValue(self.current_pos_x)
-        self.spinBox_selection_min_y.setValue(self.current_pos_y)
-        self.spinBox_selection_min_z.setValue(self.current_slice)
-        return
-
     def update_selection(self):
         self.current_selection_min_x = self.spinBox_selection_min_x.value()
         self.current_selection_min_y = self.spinBox_selection_min_y.value()
@@ -422,9 +419,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 raise NotImplementedError
 
+    # ---------------------------------------------------------------------------------------------------------------- #
+    # mouse events
+    # ---------------------------------------------------------------------------------------------------------------- #
     def main_view_mouse_event(self, event):
+        if self.main_view_pixmap_size is None or self.current_view_shape is None:
+            return
         pos = event.localPos()
         modifiers = QtWidgets.QApplication.keyboardModifiers()
+        z = self.current_slice
 
         # local pos to view position
         if pos.x() > 0 and pos.y() > 0:
@@ -439,6 +442,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.LeftButton:
                 self.mouse_left_pressed = True
+                # self.mouse_left_previous_x = x
+                # self.mouse_left_previous_y = y
             elif event.button() == Qt.RightButton:
                 self.mouse_right_pressed = True
                 if not modifiers == QtCore.Qt.ShiftModifier:
@@ -451,11 +456,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.mouse_left_pressed = False
             elif event.button() == Qt.RightButton:
                 self.mouse_right_pressed = False
+                if z > self.spinBox_selection_min_z.value():
+                    self.spinBox_selection_size_z.setValue(int(z - self.spinBox_selection_min_z.value())+1)
+                    self.update_selection()
                 if x > self.current_selection_min_x and y > self.current_selection_min_y:
                     self.spinBox_selection_size_x.setValue(((x - self.current_selection_min_x) // 32)*32)
                     self.spinBox_selection_size_y.setValue(((y - self.current_selection_min_y) // 32)*32)
                     self.update_selection()
+            elif event.button() == Qt.MiddleButton:
+                self.current_selection_to_new_image()
+
         elif event.type() == QEvent.MouseMove:
+            # if self.mouse_left_pressed == True:
+            #     diff_x = x - self.mouse_left_previous_x
+            #     diff_y = y - self.mouse_left_previous_y
+            #     self.horizontalSlider_pos_x.setValue(self.horizontalSlider_pos_x.value() - diff_x)
+            #     self.verticalSlider_pos_y.setValue(self.verticalSlider_pos_y.value() - diff_y)
+            #     self.mouse_left_previous_x = x
             if self.mouse_right_pressed == True:
                 if x > self.current_selection_min_x and y > self.current_selection_min_y:
                     self.spinBox_selection_size_x.setValue(((x - self.current_selection_min_x) // 32)*32)
@@ -471,6 +488,32 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.horizontalSlider_slice.setValue(self.horizontalSlider_slice.value()+rot)
             self.change_slice()
+
+    # ---------------------------------------------------------------------------------------------------------------- #
+    # selection extraction
+    # ---------------------------------------------------------------------------------------------------------------- #
+    def crop_selection(self):
+        self.current_selection_to_new_image()
+
+    def current_selection_to_new_image(self):
+        z0 = self.current_selection_min_z
+        y0 = self.current_selection_min_y
+        x0 = self.current_selection_min_x
+        z1 = self.current_selection_size_z
+        y1 = self.current_selection_size_y
+        x1 = self.current_selection_size_x
+
+        name = self.selected_image['name'] + str(((z0,y0,x0),(z1,y1,x1)))
+        data = self.selected_image['data'][z0:z0+z1,y0:y0+y1,x0:x0+x1]
+        image = {'name': name,
+                 'shape': data.shape,
+                 'data': data}
+        self.images.append(image)
+        self.update_lists()
+
+    # ---------------------------------------------------------------------------------------------------------------- #
+    # interactive segmentation and fine tunning
+    # ---------------------------------------------------------------------------------------------------------------- #
 
 
 app = QtWidgets.QApplication(sys.argv)

@@ -53,7 +53,7 @@
       <item>
        <widget class="QLabel" name="label_zoom">
         <property name="text">
-         <string>50%</string>
+         <string>0%</string>
         </property>
        </widget>
       </item>
@@ -324,9 +324,9 @@
          </widget>
         </item>
         <item row="2" column="2">
-         <widget class="QPushButton" name="pushButton_center_selection">
+         <widget class="QPushButton" name="pushButton_crop_selection">
           <property name="text">
-           <string>vue actuelle</string>
+           <string>recadrer la sélection</string>
           </property>
          </widget>
         </item>
@@ -689,10 +689,10 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButton_center_selection</sender>
+   <sender>pushButton_crop_selection</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>center_selection()</slot>
+   <slot>crop_selection()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>264</x>
@@ -958,7 +958,7 @@
   <slot>change_slice()</slot>
   <slot>change_zoom()</slot>
   <slot>change_pos()</slot>
-  <slot>center_selection()</slot>
+  <slot>crop_selection()</slot>
   <slot>change_class()</slot>
   <slot>change_label_opacity()</slot>
   <slot>predict_full_image()</slot>
