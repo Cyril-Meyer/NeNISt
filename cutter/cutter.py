@@ -2,18 +2,20 @@ import sys
 import os
 import time
 
-import numpy as np
-import tensorflow as tf
-from skimage import io
-import h5py
-from tqdm import tqdm
-import qimage2ndarray
-from lii import LargeImageInference as lii
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+
+import InteractiveQLabel
+
+import numpy as np
+import tensorflow as tf
+from skimage import io
+import cv2
+import h5py
+from tqdm import tqdm
+from lii import LargeImageInference as lii
 
 from cutterui import Ui_MainWindow
 from utils import *
@@ -30,7 +32,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.MIN_VIEW_SIZE = 8
 
         self.current_slice = 0
-        self.current_zoom = 50
+        self.current_zoom = 0
         self.current_pos_x = 0
         self.current_pos_y = 0
         self.current_class = 0
@@ -359,7 +361,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             # select slice
             view = data[self.current_slice]
 
-            # GraysSale to RGB
+            # Grayscale to RGB
             # todo : remove the and True with an RGB mode selection
             if len(view.shape) == 2 and True:
                 view = np.stack((view,) * 3, axis=-1)
@@ -377,7 +379,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         label[:, :, self.current_class]*1.0 * color_label_alpha
 
             # [0,1] -> [0,255]
-            view = np.clip(view, 0, 1)*255
+            view = (np.clip(view, 0, 1)*255).astype(np.uint8)
 
             # full slice to GUI selected area
             min_x = self.current_selection_min_x
@@ -387,6 +389,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             size_y = self.current_selection_size_y
             size_z = self.current_selection_size_z
 
+            # select area
             w = 4
             if self.current_slice in range(min_z, min_z+size_z):
                 view[min_y:min_y+w, min_x:min_x+size_x] = color_selection
@@ -400,15 +403,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             zoom_y = int(max(self.MIN_VIEW_SIZE, int((y/100)*zoom)))
             view = view[self.current_pos_y:zoom_y+self.current_pos_y, self.current_pos_x:self.current_pos_x+zoom_x]
 
-            # NumPy array to QLabel
-            if len(view.shape) in [2, 3]:
-                pixmap = QPixmap(qimage2ndarray.array2qimage(view))
+            # show
+            if len(view.shape) == 3:
+                height, width, channel = view.shape
+                bytesPerLine = 3 * width
+                qImg = QImage(view.tobytes(), width, height, bytesPerLine, QImage.Format_RGB888)# .rgbSwapped()
+                pixmap = QPixmap.fromImage(qImg)
                 pixmap = pixmap.scaled(self.label_main_view.geometry().width()-10-int(self.xsize*0.05),
                                        self.label_main_view.geometry().height()-10-int(self.ysize*0.05),
                                        QtCore.Qt.KeepAspectRatio)
                 self.label_main_view.setPixmap(pixmap)
+
             else:
                 raise NotImplementedError
+
+    def main_view_mouse_event(self, event):
+        print(event.localPos())
 
 
 app = QtWidgets.QApplication(sys.argv)
