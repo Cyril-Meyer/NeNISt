@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 606)
+        MainWindow.resize(800, 635)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout_centralwidget = QtWidgets.QGridLayout(self.centralwidget)
@@ -44,7 +44,7 @@ class Ui_MainWindow(object):
         self.verticalSlider_zoom.setMinimum(0)
         self.verticalSlider_zoom.setMaximum(100)
         self.verticalSlider_zoom.setPageStep(10)
-        self.verticalSlider_zoom.setProperty("value", 50)
+        self.verticalSlider_zoom.setProperty("value", 0)
         self.verticalSlider_zoom.setOrientation(QtCore.Qt.Vertical)
         self.verticalSlider_zoom.setObjectName("verticalSlider_zoom")
         self.gridLayout_centralwidget.addWidget(self.verticalSlider_zoom, 1, 4, 2, 1)
@@ -55,7 +55,7 @@ class Ui_MainWindow(object):
         self.verticalSlider_pos_y.setInvertedAppearance(True)
         self.verticalSlider_pos_y.setObjectName("verticalSlider_pos_y")
         self.gridLayout_centralwidget.addWidget(self.verticalSlider_pos_y, 1, 1, 1, 1)
-        self.label_main_view = QtWidgets.QLabel(self.centralwidget)
+        self.label_main_view = InteractiveQLabel(self.centralwidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(2)
         sizePolicy.setVerticalStretch(0)
@@ -246,7 +246,7 @@ class Ui_MainWindow(object):
         self.gridLayout_centralwidget.addLayout(self.gridLayout_main_left, 0, 0, 4, 1)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 21))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
 
@@ -273,6 +273,9 @@ class Ui_MainWindow(object):
         self.pushButton_predict_image.clicked.connect(MainWindow.predict_full_image)
         self.pushButton_add_label.clicked.connect(MainWindow.dialog_add_label)
         self.pushButton_export_label.clicked.connect(MainWindow.export_selected_label)
+        self.label_main_view.mousePress['QMouseEvent'].connect(MainWindow.main_view_mouse_event)
+        self.label_main_view.mouseRelease['QMouseEvent'].connect(MainWindow.main_view_mouse_event)
+        self.label_main_view.mouseMove['QMouseEvent'].connect(MainWindow.main_view_mouse_event)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.pushButton_add_image, self.pushButton_remove_image)
         MainWindow.setTabOrder(self.pushButton_remove_image, self.listWidget_images)
@@ -320,3 +323,4 @@ class Ui_MainWindow(object):
         self.pushButton_remove_model.setText(_translate("MainWindow", "-"))
         self.pushButton_predict_selection.setText(_translate("MainWindow", "Prédire sélection"))
         self.pushButton_predict_image.setText(_translate("MainWindow", "Prédire image"))
+from InteractiveQLabel import InteractiveQLabel

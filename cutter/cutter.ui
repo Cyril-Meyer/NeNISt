@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>606</height>
+    <height>635</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,7 +71,7 @@
        <number>10</number>
       </property>
       <property name="value">
-       <number>50</number>
+       <number>0</number>
       </property>
       <property name="orientation">
        <enum>Qt::Vertical</enum>
@@ -95,7 +95,7 @@
      </widget>
     </item>
     <item row="1" column="2" rowspan="2" colspan="2">
-     <widget class="QLabel" name="label_main_view">
+     <widget class="InteractiveQLabel" name="label_main_view">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>2</horstretch>
@@ -486,11 +486,23 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>InteractiveQLabel</class>
+   <extends>QLabel</extends>
+   <header>InteractiveQLabel</header>
+   <slots>
+    <signal>mousePress(QMouseEvent)</signal>
+    <signal>mouseRelease(QMouseEvent)</signal>
+    <signal>mouseMove(QMouseEvent)</signal>
+   </slots>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>pushButton_add_image</tabstop>
   <tabstop>pushButton_remove_image</tabstop>
@@ -867,6 +879,54 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>label_main_view</sender>
+   <signal>mousePress(QMouseEvent)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>main_view_mouse_event(QMouseEvent)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>531</x>
+     <y>326</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>317</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>label_main_view</sender>
+   <signal>mouseRelease(QMouseEvent)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>main_view_mouse_event(QMouseEvent)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>531</x>
+     <y>326</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>317</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>label_main_view</sender>
+   <signal>mouseMove(QMouseEvent)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>main_view_mouse_event(QMouseEvent)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>531</x>
+     <y>326</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>317</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>dialog_add_image()</slot>
@@ -886,5 +946,6 @@
   <slot>change_label_opacity()</slot>
   <slot>predict_full_image()</slot>
   <slot>export_selected_label()</slot>
+  <slot>main_view_mouse_event(QMouseEvent)</slot>
  </slots>
 </ui>
