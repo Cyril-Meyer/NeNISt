@@ -424,6 +424,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def main_view_mouse_event(self, event):
         pos = event.localPos()
+        modifiers = QtWidgets.QApplication.keyboardModifiers()
+
         # local pos to view position
         if pos.x() > 0 and pos.y() > 0:
             xr = pos.x() / self.main_view_pixmap_size.width()
@@ -439,10 +441,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.mouse_left_pressed = True
             elif event.button() == Qt.RightButton:
                 self.mouse_right_pressed = True
-                self.spinBox_selection_min_x.setValue(x)
-                self.spinBox_selection_min_y.setValue(y)
-                self.spinBox_selection_min_z.setValue(self.current_slice)
-                self.update_selection()
+                if not modifiers == QtCore.Qt.ShiftModifier:
+                    self.spinBox_selection_min_x.setValue(x)
+                    self.spinBox_selection_min_y.setValue(y)
+                    self.spinBox_selection_min_z.setValue(self.current_slice)
+                    self.update_selection()
         elif event.type() == QEvent.MouseButtonRelease:
             if event.button() == Qt.LeftButton:
                 self.mouse_left_pressed = False
@@ -458,6 +461,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                     self.spinBox_selection_size_x.setValue(((x - self.current_selection_min_x) // 32)*32)
                     self.spinBox_selection_size_y.setValue(((y - self.current_selection_min_y) // 32)*32)
                     self.update_selection()
+
+    def main_view_wheel_event(self, event):
+        modifiers = QtWidgets.QApplication.keyboardModifiers()
+        rot = (event.angleDelta().y() // 120)
+        if modifiers == QtCore.Qt.ControlModifier:
+            self.verticalSlider_zoom.setValue(self.verticalSlider_zoom.value()+rot*2)
+            self.change_zoom()
+        else:
+            self.horizontalSlider_slice.setValue(self.horizontalSlider_slice.value()+rot)
+            self.change_slice()
 
 
 app = QtWidgets.QApplication(sys.argv)

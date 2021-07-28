@@ -500,6 +500,7 @@
     <signal>mousePress(QMouseEvent)</signal>
     <signal>mouseRelease(QMouseEvent)</signal>
     <signal>mouseMove(QMouseEvent)</signal>
+    <signal>wheel(QWheelEvent)</signal>
    </slots>
   </customwidget>
  </customwidgets>
@@ -927,6 +928,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>label_main_view</sender>
+   <signal>wheel(QWheelEvent)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>main_view_wheel_event(QWheelEvent)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>531</x>
+     <y>326</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>317</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>dialog_add_image()</slot>
@@ -947,5 +964,6 @@
   <slot>predict_full_image()</slot>
   <slot>export_selected_label()</slot>
   <slot>main_view_mouse_event(QMouseEvent)</slot>
+  <slot>main_view_wheel_event(QWheelEvent)</slot>
  </slots>
 </ui>

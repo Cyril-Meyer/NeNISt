@@ -276,6 +276,7 @@ class Ui_MainWindow(object):
         self.label_main_view.mousePress['QMouseEvent'].connect(MainWindow.main_view_mouse_event)
         self.label_main_view.mouseRelease['QMouseEvent'].connect(MainWindow.main_view_mouse_event)
         self.label_main_view.mouseMove['QMouseEvent'].connect(MainWindow.main_view_mouse_event)
+        self.label_main_view.wheel['QWheelEvent'].connect(MainWindow.main_view_wheel_event)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
         MainWindow.setTabOrder(self.pushButton_add_image, self.pushButton_remove_image)
         MainWindow.setTabOrder(self.pushButton_remove_image, self.listWidget_images)
