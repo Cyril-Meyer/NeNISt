@@ -8,6 +8,7 @@ class InteractiveQLabel(QLabel):
     mousePress = pyqtSignal(QMouseEvent)
     mouseRelease = pyqtSignal(QMouseEvent)
     mouseMove = pyqtSignal(QMouseEvent)
+    wheel = pyqtSignal(QWheelEvent)
 
     def mousePressEvent(self, event):
         self.mousePress.emit(event)
@@ -20,3 +21,7 @@ class InteractiveQLabel(QLabel):
     def mouseMoveEvent(self, event):
         self.mouseMove.emit(event)
         QLabel.mouseMoveEvent(self, event)
+
+    def wheelEvent(self, event):
+        self.wheel.emit(event)
+        QLabel.wheelEvent(self, event)
