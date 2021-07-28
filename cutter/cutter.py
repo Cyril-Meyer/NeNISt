@@ -7,8 +7,6 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-import InteractiveQLabel
-
 import numpy as np
 import tensorflow as tf
 from skimage import io
@@ -20,7 +18,7 @@ from lii import LargeImageInference as lii
 from cutterui import Ui_MainWindow
 from utils import *
 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 VERBOSE = 1
 
 
@@ -55,6 +53,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.images = []
         self.models = []
         self.labels = []
+
+        self.mouse_left_pressed = False
+        self.mouse_right_pressed = False
 
     def resizeEvent(self, event):
         self.xsize = event.size().width()
@@ -409,16 +410,54 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 bytesPerLine = 3 * width
                 qImg = QImage(view.tobytes(), width, height, bytesPerLine, QImage.Format_RGB888)# .rgbSwapped()
                 pixmap = QPixmap.fromImage(qImg)
-                pixmap = pixmap.scaled(self.label_main_view.geometry().width()-10-int(self.xsize*0.05),
-                                       self.label_main_view.geometry().height()-10-int(self.ysize*0.05),
+                pixmap = pixmap.scaled(self.label_main_view.geometry().width()-25,
+                                       self.label_main_view.geometry().height()-25,
                                        QtCore.Qt.KeepAspectRatio)
                 self.label_main_view.setPixmap(pixmap)
+                # self.label_main_view.setFixedSize(pixmap.size())
+
+                self.current_view_shape = view.shape
+                self.main_view_pixmap_size = pixmap.size()
 
             else:
                 raise NotImplementedError
 
     def main_view_mouse_event(self, event):
-        print(event.localPos())
+        pos = event.localPos()
+        # local pos to view position
+        if pos.x() > 0 and pos.y() > 0:
+            xr = pos.x() / self.main_view_pixmap_size.width()
+            yr = pos.y() / self.main_view_pixmap_size.height()
+            x = int(xr * self.current_view_shape[1]) + self.current_pos_x
+            y = int(yr * self.current_view_shape[0]) + self.current_pos_y
+        else:
+            x = 0
+            y = 0
+
+        if event.type() == QEvent.MouseButtonPress:
+            if event.button() == Qt.LeftButton:
+                self.mouse_left_pressed = True
+            elif event.button() == Qt.RightButton:
+                self.mouse_right_pressed = True
+                self.spinBox_selection_min_x.setValue(x)
+                self.spinBox_selection_min_y.setValue(y)
+                self.spinBox_selection_min_z.setValue(self.current_slice)
+                self.update_selection()
+        elif event.type() == QEvent.MouseButtonRelease:
+            if event.button() == Qt.LeftButton:
+                self.mouse_left_pressed = False
+            elif event.button() == Qt.RightButton:
+                self.mouse_right_pressed = False
+                if x > self.current_selection_min_x and y > self.current_selection_min_y:
+                    self.spinBox_selection_size_x.setValue(((x - self.current_selection_min_x) // 32)*32)
+                    self.spinBox_selection_size_y.setValue(((y - self.current_selection_min_y) // 32)*32)
+                    self.update_selection()
+        elif event.type() == QEvent.MouseMove:
+            if self.mouse_right_pressed == True:
+                if x > self.current_selection_min_x and y > self.current_selection_min_y:
+                    self.spinBox_selection_size_x.setValue(((x - self.current_selection_min_x) // 32)*32)
+                    self.spinBox_selection_size_y.setValue(((y - self.current_selection_min_y) // 32)*32)
+                    self.update_selection()
 
 
 app = QtWidgets.QApplication(sys.argv)

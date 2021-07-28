@@ -62,7 +62,7 @@ class Ui_MainWindow(object):
         sizePolicy.setHeightForWidth(self.label_main_view.sizePolicy().hasHeightForWidth())
         self.label_main_view.setSizePolicy(sizePolicy)
         self.label_main_view.setText("")
-        self.label_main_view.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_main_view.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.label_main_view.setObjectName("label_main_view")
         self.gridLayout_centralwidget.addWidget(self.label_main_view, 1, 2, 2, 2)
         self.gridLayout_main_left = QtWidgets.QGridLayout()
