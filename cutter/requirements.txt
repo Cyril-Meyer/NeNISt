@@ -7,6 +7,7 @@ charset-normalizer==2.0.3
 cycler==0.10.0
 dataclasses==0.8
 decorator==4.4.2
+edt==2.1.1
 flatbuffers==1.12
 gast==0.3.3
 google-auth==1.34.0
@@ -37,6 +38,7 @@ pyparsing==2.4.7
 PyQt5==5.15.4
 PyQt5-Qt5==5.15.2
 PyQt5-sip==12.9.0
+PyQt5-stubs==5.15.2.0
 python-dateutil==2.8.2
 PyWavelets==1.1.1
 requests==2.26.0
