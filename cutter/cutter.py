@@ -18,7 +18,7 @@ from lii import LargeImageInference as lii
 from cutterui import Ui_MainWindow
 from utils import *
 
-# os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 VERBOSE = 1
 
 
@@ -28,6 +28,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.MIN_VIEW_SIZE = 8
+
+        self.OP_MODE = 0 # 0 = standard, 1 = interactive segmentation
 
         self.current_slice = 0
         self.current_zoom = 0
@@ -54,11 +56,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.models = []
         self.labels = []
 
+        # todo, ability to have more than one interaction map and one interaction list
+        self.interaction_map = None
+        self.interactions_pos = []
+        self.interactions_neg = []
+
         self.current_view_shape = None
         self.main_view_pixmap_size = None
 
         self.mouse_left_pressed = False
         self.mouse_right_pressed = False
+
 
     def resizeEvent(self, event):
         self.xsize = event.size().width()
@@ -364,17 +372,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if len(view.shape) == 2 and True:
                 view = np.stack((view,) * 3, axis=-1)
 
-            # label superposition
-            if self.selected_label is not None:
-                min_z, min_y, min_x = self.selected_label['offset']
-                size_z, size_y, size_x, n_class = self.selected_label['shape']
-                label = self.selected_label['data']
+            if self.checkBox_show_label.isChecked():
+                # label superposition
+                if self.selected_label is not None:
+                    min_z, min_y, min_x = self.selected_label['offset']
+                    size_z, size_y, size_x, n_class = self.selected_label['shape']
+                    label = self.selected_label['data']
 
-                if self.current_slice in range(min_z, min_z+size_z) and self.current_class < n_class:
-                    label = label[self.current_slice-min_z]
-                    view[min_y:min_y + size_y, min_x:min_x + size_x, 0] = \
-                        view[min_y:min_y + size_y, min_x:min_x + size_x, 0] + \
-                        label[:, :, self.current_class]*1.0 * color_label_alpha
+                    if self.current_slice in range(min_z, min_z+size_z) and self.current_class < n_class:
+                        label = label[self.current_slice-min_z]
+                        view[min_y:min_y + size_y, min_x:min_x + size_x, 0] = \
+                            view[min_y:min_y + size_y, min_x:min_x + size_x, 0] + \
+                            label[:, :, self.current_class]*1.0 * color_label_alpha
+            elif self.OP_MODE == 1:
+                # interaction superposition
+                thickness = 8
+                for z, y, x in self.interactions_pos:
+                    if self.current_slice == z:
+                        view[max(0, y-thickness):y+thickness, max(0, x-thickness):x+thickness] = (0.0, 1.0, 0.0)
+                for z, y, x in self.interactions_neg:
+                    if self.current_slice == z:
+                        view[max(0, y-thickness):y+thickness, max(0, x-thickness):x+thickness] = (1.0, 0.0, 0.0)
 
             # [0,1] -> [0,255]
             view = (np.clip(view, 0, 1)*255).astype(np.uint8)
@@ -419,6 +437,44 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             else:
                 raise NotImplementedError
 
+            if self.OP_MODE == 1:
+                self.update_interactive_map_view()
+
+    def update_interactive_map_view(self):
+        if self.interaction_map is None:
+            return
+        pos_map = self.interaction_map[0]
+        neg_map = self.interaction_map[1]
+
+        view_pos = pos_map[self.current_slice]
+        view_neg = neg_map[self.current_slice]
+
+        if len(view_pos.shape) == 2 and True:
+            view_pos = np.stack((view_pos,) * 3, axis=-1)
+        view_pos = (np.clip(view_pos, 0, 1) * 255).astype(np.uint8)
+        if len(view_pos.shape) == 3:
+            height, width, channel = view_pos.shape
+            bytesPerLine = 3 * width
+            qImg = QImage(view_pos.tobytes(), width, height, bytesPerLine, QImage.Format_RGB888)  # .rgbSwapped()
+            pixmap = QPixmap.fromImage(qImg)
+            pixmap = pixmap.scaled(self.label_interaction_map_view_2.geometry().width(),
+                                   self.label_interaction_map_view_2.geometry().height(),
+                                   QtCore.Qt.KeepAspectRatio)
+            self.label_interaction_map_view_1.setPixmap(pixmap)
+
+        if len(view_neg.shape) == 2 and True:
+            view_neg = np.stack((view_neg,) * 3, axis=-1)
+        view_neg = (np.clip(view_neg, 0, 1) * 255).astype(np.uint8)
+        if len(view_neg.shape) == 3:
+            height, width, channel = view_neg.shape
+            bytesPerLine = 3 * width
+            qImg = QImage(view_neg.tobytes(), width, height, bytesPerLine, QImage.Format_RGB888)  # .rgbSwapped()
+            pixmap = QPixmap.fromImage(qImg)
+            pixmap = pixmap.scaled(self.label_interaction_map_view_2.geometry().width(),
+                                   self.label_interaction_map_view_2.geometry().height(),
+                                   QtCore.Qt.KeepAspectRatio)
+            self.label_interaction_map_view_2.setPixmap(pixmap)
+
     # ---------------------------------------------------------------------------------------------------------------- #
     # mouse events
     # ---------------------------------------------------------------------------------------------------------------- #
@@ -446,7 +502,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 # self.mouse_left_previous_y = y
             elif event.button() == Qt.RightButton:
                 self.mouse_right_pressed = True
-                if not modifiers == QtCore.Qt.ShiftModifier:
+                if self.OP_MODE == 0 and not modifiers == QtCore.Qt.ShiftModifier:
                     self.spinBox_selection_min_x.setValue(x)
                     self.spinBox_selection_min_y.setValue(y)
                     self.spinBox_selection_min_z.setValue(self.current_slice)
@@ -454,15 +510,27 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif event.type() == QEvent.MouseButtonRelease:
             if event.button() == Qt.LeftButton:
                 self.mouse_left_pressed = False
+                if self.OP_MODE == 1:
+                    self.interactions_pos.append((z, y, x))
+                    if not modifiers == QtCore.Qt.ShiftModifier:
+                        self.update_interaction_map()
+                        self.update_interactive_segmentation()
+                    self.update_view()
             elif event.button() == Qt.RightButton:
                 self.mouse_right_pressed = False
-                if z > self.spinBox_selection_min_z.value():
+                if self.OP_MODE == 0 and z > self.spinBox_selection_min_z.value():
                     self.spinBox_selection_size_z.setValue(int(z - self.spinBox_selection_min_z.value())+1)
                     self.update_selection()
-                if x > self.current_selection_min_x and y > self.current_selection_min_y:
+                if self.OP_MODE == 0 and x > self.current_selection_min_x and y > self.current_selection_min_y:
                     self.spinBox_selection_size_x.setValue(((x - self.current_selection_min_x) // 32)*32)
                     self.spinBox_selection_size_y.setValue(((y - self.current_selection_min_y) // 32)*32)
                     self.update_selection()
+                if self.OP_MODE == 1:
+                    self.interactions_neg.append((z, y, x))
+                    if not modifiers == QtCore.Qt.ShiftModifier:
+                        self.update_interaction_map()
+                        self.update_interactive_segmentation()
+                    self.update_view()
             elif event.button() == Qt.MiddleButton:
                 self.current_selection_to_new_image()
 
@@ -473,7 +541,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             #     self.horizontalSlider_pos_x.setValue(self.horizontalSlider_pos_x.value() - diff_x)
             #     self.verticalSlider_pos_y.setValue(self.verticalSlider_pos_y.value() - diff_y)
             #     self.mouse_left_previous_x = x
-            if self.mouse_right_pressed == True:
+            if self.OP_MODE == 0 and self.mouse_right_pressed == True:
                 if x > self.current_selection_min_x and y > self.current_selection_min_y:
                     self.spinBox_selection_size_x.setValue(((x - self.current_selection_min_x) // 32)*32)
                     self.spinBox_selection_size_y.setValue(((y - self.current_selection_min_y) // 32)*32)
@@ -514,6 +582,53 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     # ---------------------------------------------------------------------------------------------------------------- #
     # interactive segmentation and fine tunning
     # ---------------------------------------------------------------------------------------------------------------- #
+    def interactive_segmentation_image(self):
+        if not self.OP_MODE == 1:
+            self.OP_MODE = 1
+            if self.selected_image is not None and self.selected_model is not None:
+                # get interactive segmentation setup
+                patch_size, ok = QInputDialog.getInt(self, "Taille de patch", "Taille de patch", 256)
+                if not ok or patch_size <= 1:
+                    err_msg("Taille de patch invalide.")
+
+                self.spinBox_selection_size_x.setValue(patch_size)
+                self.spinBox_selection_size_y.setValue(patch_size)
+                self.spinBox_selection_size_z.setValue(1)
+                self.update_selection()
+            else:
+                err_msg("Pas d'image ou pas de modèle selectionné")
+        else:
+            # todo
+            self.OP_MODE = 0
+
+    def update_interaction_map(self):
+        pos_map = scribble_points_to_distance_map(self.selected_image['data'].shape, self.interactions_pos, clip_dist=50)
+        neg_map = scribble_points_to_distance_map(self.selected_image['data'].shape, self.interactions_neg, clip_dist=50)
+        self.interaction_map = np.stack([pos_map, neg_map])
+
+        self.update_interactive_map_view()
+
+    def update_interactive_segmentation(self):
+        tf.keras.backend.clear_session()
+        if self.selected_image is not None and self.selected_model is not None and self.interaction_map is not None:
+            selection = self.selected_image['data']
+            pos_map = self.interaction_map[0]
+            neg_map = self.interaction_map[1]
+            selection = np.expand_dims(np.stack([selection, pos_map, neg_map], axis=-1), -1)
+            
+            if self.selected_model['dim'] == 2:
+                prediction = np.array(self.selected_model['model'].predict(selection))
+
+                label = {'name': self.selected_image['name'] + self.selected_model['name'],
+                         'shape': prediction.shape,
+                         'offset': (0, 0, 0),
+                         'data': prediction}
+                self.labels.append(label)
+                self.selected_label_row = self.selected_label_row + 1
+                self.update_lists()
+            else:
+                raise NotImplementedError
+
 
 
 app = QtWidgets.QApplication(sys.argv)

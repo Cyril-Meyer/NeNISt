@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>635</height>
+    <width>1280</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -128,7 +128,7 @@
       <item row="4" column="0" colspan="3">
        <widget class="QListWidget" name="listWidget_models"/>
       </item>
-      <item row="7" column="0" colspan="3">
+      <item row="8" column="0" colspan="3">
        <layout class="QGridLayout" name="gridLayout_selection">
         <item row="0" column="0" colspan="2">
          <widget class="QLabel" name="label_class">
@@ -330,13 +330,29 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="1" colspan="2">
+        <item row="8" column="0" colspan="3">
          <widget class="QCheckBox" name="checkBox_overlap">
           <property name="text">
            <string>Prédiction avec chevauchement</string>
           </property>
           <property name="checked">
            <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0" colspan="3">
+         <widget class="QLabel" name="label_automatic_segmentation">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Segmentation Automatique</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -446,7 +462,7 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0" colspan="3">
+      <item row="9" column="0" colspan="3">
        <layout class="QHBoxLayout" name="horizontalLayout_predict">
         <item>
          <widget class="QPushButton" name="pushButton_predict_selection">
@@ -476,6 +492,85 @@
         </item>
        </layout>
       </item>
+      <item row="7" column="0" colspan="3">
+       <widget class="QCheckBox" name="checkBox_show_label">
+        <property name="text">
+         <string>Afficher etiquette</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="0" column="5" rowspan="4">
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0">
+       <widget class="QLabel" name="label_interactive_segmentation">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Segmentation Interactive</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Masques</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="pushButton_interactive_segmentation">
+        <property name="text">
+         <string>Segmenter l'image</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_interaction_map_view_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0">
+       <widget class="QListWidget" name="listWidget"/>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="label_interaction_map_view_1">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -485,7 +580,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1280</width>
      <height>22</height>
     </rect>
    </property>
@@ -944,6 +1039,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton_interactive_segmentation</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>interactive_segmentation_image()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1141</x>
+     <y>67</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>639</x>
+     <y>399</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>dialog_add_image()</slot>
@@ -965,5 +1076,6 @@
   <slot>export_selected_label()</slot>
   <slot>main_view_mouse_event(QMouseEvent)</slot>
   <slot>main_view_wheel_event(QWheelEvent)</slot>
+  <slot>interactive_segmentation_image()</slot>
  </slots>
 </ui>
