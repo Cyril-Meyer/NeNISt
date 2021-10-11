@@ -12,7 +12,7 @@ import numpy as np
 if(os.uname()[1] == 'lythandas'):
     DATA_FOLDER = "/HDD1/data/IGBMC_Small/"
 else:
-    DATA_FOLDER = "/b/home/miv/cmeyer/DATA/IGBMC_Small/"
+    DATA_FOLDER = "/b/home/miv/cmeyer/Data/IGBMC_Small/"
 
 i3_image = np.load(DATA_FOLDER + "I3_MULTI_IMAGE.npy")
 i3_label_1 = np.load(DATA_FOLDER + "I3_MULTI_LABEL_MITO.npy")
