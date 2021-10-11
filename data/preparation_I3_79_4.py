@@ -73,7 +73,7 @@ if image_normalized_f32.min() != 0 or image_normalized_f32.max() != 1:
 
 # Split
 train_selection = np.arange(50)
-test_selection = np.arange(50) + 29
+test_selection = np.arange(29) + 50
 
 train_image_normalized_f32 = image_normalized_f32[train_selection]
 train_image_normalized_f16 = image_normalized_f16[train_selection]
