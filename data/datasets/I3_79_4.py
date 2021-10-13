@@ -16,9 +16,11 @@ else:
 
 train_image_normalized_f32 = np.load(DATA_FOLDER + "TRAIN_IMAGE_NORMALIZED_F32.npy")
 train_image_normalized_f16 = np.load(DATA_FOLDER + "TRAIN_IMAGE_NORMALIZED_F16.npy")
+train_labels = np.load(DATA_FOLDER + "TRAIN_LABELS.npy")
 train_labels_dt = np.load(DATA_FOLDER + "TRAIN_LABELS_DT.npy")
 
 
 test_image_normalized_f32 = np.load(DATA_FOLDER + "TEST_IMAGE_NORMALIZED_F32.npy")
 test_image_normalized_f16 = np.load(DATA_FOLDER + "TEST_IMAGE_NORMALIZED_F16.npy")
+test_labels = np.load(DATA_FOLDER + "TEST_LABELS.npy")
 test_labels_dt = np.load(DATA_FOLDER + "TEST_LABELS_DT.npy")

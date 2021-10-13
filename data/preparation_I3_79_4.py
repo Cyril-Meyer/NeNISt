@@ -41,10 +41,10 @@ if not (image.shape == label_1.shape == label_2.shape == label_3.shape == label_
 selection = np.arange(79)+171
 image = image[selection]
 
-label_1 = label_1[selection]
-label_2 = label_2[selection]
-label_3 = label_3[selection]
-label_4 = label_4[selection]
+label_1 = np.array(label_1[selection], dtype=np.uint8)
+label_2 = np.array(label_2[selection], dtype=np.uint8)
+label_3 = np.array(label_3[selection], dtype=np.uint8)
+label_4 = np.array(label_4[selection], dtype=np.uint8)
 
 anisotropy=(20, 5, 5)
 normalize = normalize_tanh
@@ -81,6 +81,10 @@ train_label_dt_1 = label_dt_1[train_selection]
 train_label_dt_2 = label_dt_2[train_selection]
 train_label_dt_3 = label_dt_3[train_selection]
 train_label_dt_4 = label_dt_4[train_selection]
+train_label_1 = label_1[train_selection]
+train_label_2 = label_2[train_selection]
+train_label_3 = label_3[train_selection]
+train_label_4 = label_4[train_selection]
 
 test_image_normalized_f32 = image_normalized_f32[test_selection]
 test_image_normalized_f16 = image_normalized_f16[test_selection]
@@ -88,16 +92,25 @@ test_label_dt_1 = label_dt_1[test_selection]
 test_label_dt_2 = label_dt_2[test_selection]
 test_label_dt_3 = label_dt_3[test_selection]
 test_label_dt_4 = label_dt_4[test_selection]
+test_label_1 = label_1[test_selection]
+test_label_2 = label_2[test_selection]
+test_label_3 = label_3[test_selection]
+test_label_4 = label_4[test_selection]
 
-train_labels_one_hot = np.stack([train_label_dt_1, train_label_dt_2, train_label_dt_3, train_label_dt_4], axis=-1)
+train_labels_dt_one_hot = np.stack([train_label_dt_1, train_label_dt_2, train_label_dt_3, train_label_dt_4], axis=-1)
+train_labels_one_hot = np.stack([train_label_1, train_label_2, train_label_3, train_label_4], axis=-1)
 
-test_labels_one_hot = np.stack([test_label_dt_1, test_label_dt_2, test_label_dt_3, test_label_dt_4], axis=-1)
+test_labels_dt_one_hot = np.stack([test_label_dt_1, test_label_dt_2, test_label_dt_3, test_label_dt_4], axis=-1)
+test_labels_one_hot = np.stack([test_label_1, test_label_2, test_label_3, test_label_4], axis=-1)
+
 
 # Save
 np.save("/home/cyril/Documents/Data/I3_79_4/TRAIN_IMAGE_NORMALIZED_F32.npy", train_image_normalized_f32)
 np.save("/home/cyril/Documents/Data/I3_79_4/TRAIN_IMAGE_NORMALIZED_F16.npy", train_image_normalized_f16)
-np.save("/home/cyril/Documents/Data/I3_79_4/TRAIN_LABELS_DT.npy", train_labels_one_hot)
+np.save("/home/cyril/Documents/Data/I3_79_4/TRAIN_LABELS_DT.npy", train_labels_dt_one_hot)
+np.save("/home/cyril/Documents/Data/I3_79_4/TRAIN_LABELS.npy", train_labels_one_hot)
 
 np.save("/home/cyril/Documents/Data/I3_79_4/TEST_IMAGE_NORMALIZED_F32.npy", test_image_normalized_f32)
 np.save("/home/cyril/Documents/Data/I3_79_4/TEST_IMAGE_NORMALIZED_F16.npy", test_image_normalized_f16)
-np.save("/home/cyril/Documents/Data/I3_79_4/TEST_LABELS_DT.npy", test_labels_one_hot)
+np.save("/home/cyril/Documents/Data/I3_79_4/TEST_LABELS_DT.npy", test_labels_dt_one_hot)
+np.save("/home/cyril/Documents/Data/I3_79_4/TEST_LABELS.npy", test_labels_one_hot)
