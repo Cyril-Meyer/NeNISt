@@ -1,3 +1,0 @@
-lii @ git+git://github.com/Cyril-Meyer/lii@bf451cd90f9745c17cc8fa1d579b5a19fda18c7f
-tism @ git+git://github.com/Cyril-Meyer/tism@139c0130aa15bce7b5220f45942ed79eeef8d452
-
