@@ -16,5 +16,7 @@ def F1(X, Y):
     U = np.sum(X + Y)
     return (2*I)/(U+I)
 
+iou = IoU
+f1 = F1
 jaccard = IoU
 dice = F1
