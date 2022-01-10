@@ -384,7 +384,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                         view[min_y:min_y + size_y, min_x:min_x + size_x, 0] = \
                             view[min_y:min_y + size_y, min_x:min_x + size_x, 0] + \
                             label[:, :, self.current_class]*1.0 * color_label_alpha
-            elif self.OP_MODE == 1:
+            if self.OP_MODE == 1:
                 # interaction superposition
                 thickness = 8
                 for z, y, x in self.interactions_pos:
@@ -615,7 +615,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             pos_map = self.interaction_map[0]
             neg_map = self.interaction_map[1]
             selection = np.expand_dims(np.stack([selection, pos_map, neg_map], axis=-1), -1)
-            
+
             if self.selected_model['dim'] == 2:
                 prediction = np.array(self.selected_model['model'].predict(selection))
 
@@ -624,7 +624,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                          'offset': (0, 0, 0),
                          'data': prediction}
                 self.labels.append(label)
-                self.selected_label_row = self.selected_label_row + 1
+                self.selected_label_row = self.listWidget_labels.count()
+                self.listWidget_labels.setCurrentRow(self.selected_label_row)
                 self.update_lists()
             else:
                 raise NotImplementedError
