@@ -16,7 +16,23 @@ def check_valid(image, label):
     return True
 
 
-def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation):
+def create_label_indexes(label, patch_size):
+    label_indexes = []
+    if len(patch_size) == 2:
+        pz = 0
+        py, px = patch_size
+    elif len(patch_size) == 3:
+        pz, py, px = patch_size
+    else:
+        raise ValueError
+    
+    for i in range(label.shape[-1]):
+            mz, my, mx, _ = label.shape
+            label_indexes.append(np.argwhere(label[:mz-pz, :my-py, :mx-px, i] > 0))
+    return label_indexes
+
+
+def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label_indexes):
     n_channel = image[0].shape[-1]
     n_label = label[0].shape[-1]
     image_dtype = image[0].dtype
@@ -27,16 +43,24 @@ def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation):
     batch_label = np.zeros((batch_size,) + patch_size + (n_label,), dtype=label_dtype)
     img = image
     lbl = label
+    if label_indexes is not None:
+        lbli = label_indexes
     while True:
         for i in range(batch_size):
             if type(image) is list:
                 n = randint(0, len(image)-1)
                 img = image[n]
                 lbl = label[n]
-        
-            x = randint(0, img.shape[2] - patch_size_x)
-            y = randint(0, img.shape[1] - patch_size_y)
-            z = randint(0, img.shape[0] - 1)
+                if label_indexes is not None:
+                    lbli = label_indexes[n]
+            if label_indexes is not None:
+                cla = randint(0, len(lbli)-1)
+                r = randint(0, len(lbli[cla])-1)
+                z, y, x = lbli[cla][r]
+            else:
+                x = randint(0, img.shape[2] - patch_size_x)
+                y = randint(0, img.shape[1] - patch_size_y)
+                z = randint(0, img.shape[0] - 1)
 
             batch_image[i, :, :, :] = img[z, y:y + patch_size_y, x:x + patch_size_x, :]
             batch_label[i, :, :, :] = lbl[z, y:y + patch_size_y, x:x + patch_size_x, :]
@@ -58,7 +82,7 @@ def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation):
         yield batch_image, batch_label
 
 
-def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation):
+def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label_indexes):
     n_channel = image[0].shape[-1]
     n_label = label[0].shape[-1]
     image_dtype = image[0].dtype
@@ -69,16 +93,25 @@ def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation):
     batch_label = np.zeros((batch_size,) + patch_size + (n_label,), dtype=label_dtype)
     img = image
     lbl = label
+    if label_indexes is not None:
+        lbli = label_indexes
     while True:
         for i in range(batch_size):
             if type(image) is list:
                 n = randint(0, len(image)-1)
                 img = image[n]
                 lbl = label[n]
+                if label_indexes is not None:
+                    lbli = label_indexes[n]
         
-            x = randint(0, img.shape[2] - patch_size_x)
-            y = randint(0, img.shape[1] - patch_size_y)
-            z = randint(0, img.shape[0] - patch_size_z)
+            if label_indexes is not None:
+                cla = randint(0, len(lbli)-1)
+                r = randint(0, len(lbli[cla])-1)
+                z, y, x = lbli[cla][r]
+            else:
+                x = randint(0, img.shape[2] - patch_size_x)
+                y = randint(0, img.shape[1] - patch_size_y)
+                z = randint(0, img.shape[0] - patch_size_z)
 
             batch_image[i, :, :, :, :] = img[z:z + patch_size_z, y:y + patch_size_y, x:x + patch_size_x, :]
             batch_label[i, :, :, :, :] = lbl[z:z + patch_size_z, y:y + patch_size_y, x:x + patch_size_x, :]
@@ -119,15 +152,9 @@ def gen_patch_batch(patch_size, image, label, batch_size=32, augmentation=True, 
     if not check_valid(image, label):
         raise ValueError
     if len(patch_size) == 2:
-        if label_indexes is None:
-            gen = gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation)
-        else:
-            raise NotImplementedError
+        gen = gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label_indexes)
     elif len(patch_size) == 3:
-        if label_indexes is None:
-            gen = gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation)
-        else:
-            raise NotImplementedError
+        gen = gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label_indexes)
     else:
         raise ValueError
     return gen
