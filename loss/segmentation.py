@@ -21,7 +21,8 @@ def jaccard_distance_loss(y_true, y_pred, smooth=100):
     return (1 - jac) * smooth
 
 
-def dice_coef(y_true, y_pred, smooth=1):
+# why square ?
+def dice_coef_wassname(y_true, y_pred, smooth=1):
     """
     Dice = (2*|X & Y|)/ (|X|+ |Y|)
          =  2*sum(|A*B|)/(sum(A^2)+sum(B^2))
@@ -32,6 +33,11 @@ def dice_coef(y_true, y_pred, smooth=1):
     """
     intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
     return (2. * intersection + smooth) / (K.sum(K.square(y_true),-1) + K.sum(K.square(y_pred),-1) + smooth)
+
+
+def dice_coef(y_true, y_pred, smooth=1):
+    intersection = K.sum(K.abs(y_true * y_pred), axis=-1)
+    return (2. * intersection + smooth) / (K.sum(y_true,-1) + K.sum(y_pred,-1) + smooth)
 
 
 def dice_coef_loss(y_true, y_pred):
