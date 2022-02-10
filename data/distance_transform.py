@@ -55,3 +55,15 @@ def label_dt_f16(label, anisotropy=None, normalize=normalize_tanh, normalize_sca
     distance[label == 1] = distance_pos[label == 1]
     
     return distance
+
+
+def label_edt(label, anisotropy=None):
+    ndim = len(label.shape)
+    # default anisotropy: no anisotropy
+    if anisotropy == None:
+        anisotropy = (1.0,) * ndim
+    # check anisotropy shape
+    if not len(anisotropy) == ndim:
+        print("ERROR: label_dt invalid anisotropy tuple length")
+    
+    return edt.edt(label, anisotropy=anisotropy) - edt.edt(1 - label, anisotropy=anisotropy)
