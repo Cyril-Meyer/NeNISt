@@ -1,4 +1,4 @@
-from random import randint
+from random import randint, random
 import numpy as np
 
 
@@ -32,7 +32,7 @@ def create_label_indexes(label, patch_size):
     return label_indexes
 
 
-def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label_indexes):
+def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label_indexes, label_indexes_prop):
     n_channel = image[0].shape[-1]
     n_label = label[0].shape[-1]
     image_dtype = image[0].dtype
@@ -46,6 +46,7 @@ def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label
     if label_indexes is not None:
         lbli = label_indexes
     while True:
+        batch_image.fill(0)
         for i in range(batch_size):
             if type(image) is list:
                 n = randint(0, len(image)-1)
@@ -53,10 +54,11 @@ def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label
                 lbl = label[n]
                 if label_indexes is not None:
                     lbli = label_indexes[n]
-            if label_indexes is not None:
+            if label_indexes is not None and label_indexes_prop > random():
                 cla = randint(0, len(lbli)-1)
                 r = randint(0, len(lbli[cla])-1)
                 z, y, x = lbli[cla][r]
+                z, y, x = int(z), int(y), int(x)
             else:
                 x = randint(0, img.shape[2] - patch_size_x)
                 y = randint(0, img.shape[1] - patch_size_y)
@@ -82,7 +84,7 @@ def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label
         yield batch_image, batch_label
 
 
-def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label_indexes):
+def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label_indexes, label_indexes_prop):
     n_channel = image[0].shape[-1]
     n_label = label[0].shape[-1]
     image_dtype = image[0].dtype
@@ -96,18 +98,20 @@ def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label
     if label_indexes is not None:
         lbli = label_indexes
     while True:
+        batch_image.fill(0)
         for i in range(batch_size):
             if type(image) is list:
                 n = randint(0, len(image)-1)
                 img = image[n]
                 lbl = label[n]
-                if label_indexes is not None:
+                if label_indexes is not None and label_indexes_prop > random():
                     lbli = label_indexes[n]
         
             if label_indexes is not None:
                 cla = randint(0, len(lbli)-1)
                 r = randint(0, len(lbli[cla])-1)
                 z, y, x = lbli[cla][r]
+                z, y, x = int(z), int(y), int(x)
             else:
                 x = randint(0, img.shape[2] - patch_size_x)
                 y = randint(0, img.shape[1] - patch_size_y)
@@ -145,16 +149,16 @@ def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label
         yield batch_image, batch_label
 
 
-def gen_patch_batch(patch_size, image, label, batch_size=32, augmentation=True, label_indexes=None):
+def gen_patch_batch(patch_size, image, label, batch_size=32, augmentation=True, label_indexes=None, label_indexes_prop=1.0):
     gen = None
     if not (len(patch_size) == 2 or len(patch_size) == 3):
         raise ValueError
     if not check_valid(image, label):
         raise ValueError
     if len(patch_size) == 2:
-        gen = gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label_indexes)
+        gen = gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label_indexes, label_indexes_prop)
     elif len(patch_size) == 3:
-        gen = gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label_indexes)
+        gen = gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label_indexes, label_indexes_prop)
     else:
         raise ValueError
     return gen
