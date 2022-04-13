@@ -1,4 +1,5 @@
 from keras import backend as K
+import tensorflow as tf
 
 
 def jaccard_distance_loss(y_true, y_pred, smooth=100):
@@ -42,3 +43,13 @@ def dice_coef(y_true, y_pred, smooth=1):
 
 def dice_coef_loss(y_true, y_pred):
     return 1-dice_coef(y_true, y_pred)
+
+
+def dice_loss_lars76(y_true, y_pred):
+    """
+    https://lars76.github.io/2018/09/27/loss-functions-for-segmentation.html
+    """
+    numerator = 2 * tf.reduce_sum(y_true * y_pred)
+    denominator = tf.reduce_sum(y_true + y_pred)
+
+    return 1 - numerator / denominator
