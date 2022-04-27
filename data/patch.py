@@ -162,3 +162,21 @@ def gen_patch_batch(patch_size, image, label, batch_size=32, augmentation=True, 
     else:
         raise ValueError
     return gen
+
+
+def crop_gen_patch_2d_batch(gen, crop_in, crop_out):
+    while True:
+        X, Y = next(gen)
+        y_min = crop_in[0][0]
+        y_max = X.shape[1] - crop_in[0][1]
+        x_min = crop_in[1][0]
+        x_max = X.shape[2] - crop_in[1][1]
+        X = X[:, y_min:y_max, x_min:x_max]
+        
+        y_min = crop_out[0][0]
+        y_max = Y.shape[1] - crop_out[0][1]
+        x_min = crop_out[1][0]
+        x_max = Y.shape[2] - crop_out[1][1]
+        Y = Y[:, y_min:y_max, x_min:x_max]
+        
+        yield X, Y
