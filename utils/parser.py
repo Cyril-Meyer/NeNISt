@@ -17,17 +17,29 @@ def args():
                         action='append',
                         required=True)
 
+    parser.add_argument("--images-validation",
+                        help="add image for validation",
+                        type=str,
+                        action='append',
+                        default=[])
+
+    parser.add_argument("--labels-validation",
+                        help="add labels for validation",
+                        type=str,
+                        nargs='+',
+                        action='append',
+                        default=[])
+
     parser.add_argument("--save",
                         help="save location",
                         type=str,
-                        default=None,
                         required=True)
 
     parser.add_argument("--patch-size",
                         help="patch size",
                         type=int,
                         nargs='+',
-                        default=[],
+                        required=True,
                         choices=range(1, 4096))
 
     parser.add_argument("--batch-size",
@@ -36,18 +48,36 @@ def args():
                         default=1,
                         choices=range(1, 4096))
 
+    parser.add_argument("--steps-per-epoch",
+                        help="number of batch per epoch",
+                        type=int,
+                        default=512,
+                        choices=range(16, 4096))
+
+    parser.add_argument("--steps-per-epoch-validation",
+                        help="number of validation batch per epoch",
+                        type=int,
+                        default=0,
+                        choices=range(0, 4096))
+
+    parser.add_argument("--epochs",
+                        help="number of epochs",
+                        type=int,
+                        default=128,
+                        choices=range(1, 4096))
+
     parser.add_argument("--loss",
                         help="loss",
                         type=str,
-                        default='crossentropy')
+                        default='cross-entropy',
+                        choices=['cross-entropy', 'dice', 'iou', 'mse-dt'])
 
     parser.add_argument("--model",
                         help="model codename",
                         type=str,
-                        default='unet')
+                        default='u-net-32')
 
     args = parser.parse_args()
     assert len(args.images) == len(args.labels) > 0
+    assert len(args.images_validation) == len(args.labels_validation) >= 0
     return args
-
-
