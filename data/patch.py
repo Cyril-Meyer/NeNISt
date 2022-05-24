@@ -39,8 +39,8 @@ def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label
     label_dtype = label[0].dtype
     patch_size_y, patch_size_x = patch_size
     
-    batch_image = np.zeros((batch_size,) + patch_size + (n_channel,), dtype=image_dtype)
-    batch_label = np.zeros((batch_size,) + patch_size + (n_label,), dtype=label_dtype)
+    batch_image = np.zeros((batch_size,) + tuple(patch_size) + (n_channel,), dtype=image_dtype)
+    batch_label = np.zeros((batch_size,) + tuple(patch_size) + (n_label,), dtype=label_dtype)
     img = image
     lbl = label
     if label_indexes is not None:
@@ -91,8 +91,8 @@ def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label
     label_dtype = label[0].dtype
     patch_size_z, patch_size_y, patch_size_x = patch_size
     
-    batch_image = np.zeros((batch_size,) + patch_size + (n_channel,), dtype=image_dtype)
-    batch_label = np.zeros((batch_size,) + patch_size + (n_label,), dtype=label_dtype)
+    batch_image = np.zeros((batch_size,) + tuple(patch_size) + (n_channel,), dtype=image_dtype)
+    batch_label = np.zeros((batch_size,) + tuple(patch_size) + (n_label,), dtype=label_dtype)
     img = image
     lbl = label
     if label_indexes is not None:
@@ -180,3 +180,14 @@ def crop_gen_patch_2d_batch(gen, crop_in, crop_out):
         Y = Y[:, y_min:y_max, x_min:x_max]
         
         yield X, Y
+
+
+def gen_to_multiple_outputs(gen):
+    while True:
+        X, Y = next(gen)
+
+        Y_ = []
+        for c in range(Y.shape[-1]):
+            Y_.append(Y[..., c:c + 1])
+
+        yield X, Y_
