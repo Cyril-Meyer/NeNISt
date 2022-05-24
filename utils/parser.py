@@ -1,4 +1,6 @@
 import argparse
+import tensorflow as tf
+import loss.segmentation
 
 
 def args():
@@ -7,27 +9,27 @@ def args():
     parser.add_argument("--images",
                         help="add image",
                         type=str,
-                        action='append',
+                        action="append",
                         required=True)
 
     parser.add_argument("--labels",
                         help="add labels",
                         type=str,
-                        nargs='+',
-                        action='append',
+                        nargs="+",
+                        action="append",
                         required=True)
 
     parser.add_argument("--images-validation",
                         help="add image for validation",
                         type=str,
-                        action='append',
+                        action="append",
                         default=[])
 
     parser.add_argument("--labels-validation",
                         help="add labels for validation",
                         type=str,
-                        nargs='+',
-                        action='append',
+                        nargs="+",
+                        action="append",
                         default=[])
 
     parser.add_argument("--save",
@@ -38,7 +40,7 @@ def args():
     parser.add_argument("--patch-size",
                         help="patch size",
                         type=int,
-                        nargs='+',
+                        nargs="+",
                         required=True,
                         choices=range(1, 4096))
 
@@ -69,15 +71,57 @@ def args():
     parser.add_argument("--loss",
                         help="loss",
                         type=str,
-                        default='cross-entropy',
-                        choices=['cross-entropy', 'dice', 'iou', 'mse-dt'])
+                        default="cce",
+                        choices=["cce", "bce", "dice", "dice-bce", "iou", "mse-dt"])
 
     parser.add_argument("--model",
                         help="model codename",
                         type=str,
-                        default='u-net-32')
+                        default="unet")
+
+    parser.add_argument("--verbose",
+                        help="verbose",
+                        type=bool,
+                        default=False)
 
     args = parser.parse_args()
     assert len(args.images) == len(args.labels) > 0
     assert len(args.images_validation) == len(args.labels_validation) >= 0
     return args
+
+
+def get_loss(args_loss):
+    if args_loss == 'cce':
+        loss_func = tf.keras.losses.CategoricalCrossentropy
+        activation = 'softmax'
+        multiple_outputs = False
+        threshold = 0.5
+    elif args_loss == 'bce':
+        loss_func = tf.keras.losses.BinaryCrossentropy
+        activation = 'sigmoid'
+        multiple_outputs = True
+        threshold = 0.5
+    elif args_loss == 'dice':
+        loss_func = loss.segmentation.dice_loss_lars76
+        activation = 'sigmoid'
+        multiple_outputs = True
+        threshold = 0.5
+    elif args_loss == 'dice-bce':
+        loss_func = loss.segmentation.DiceBCELoss
+        activation = 'sigmoid'
+        multiple_outputs = True
+        threshold = 0.5
+    elif args_loss == 'iou':
+        loss_func = loss.segmentation.IoULoss
+        activation = 'sigmoid'
+        multiple_outputs = True
+        threshold = 0.5
+    elif args_loss == 'mse-dt':
+        loss_func = tf.keras.losses.MeanSquaredError
+        activation = 'tanh'
+        multiple_outputs = True
+        threshold = 0.0
+    else:
+        raise NotImplementedError
+
+    return loss_func, activation, multiple_outputs, threshold
