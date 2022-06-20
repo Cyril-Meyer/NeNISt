@@ -5,7 +5,7 @@ def IoU(X, Y):
     X = X.astype(np.bool)
     Y = Y.astype(np.bool)
     I = np.sum(X * Y)
-    U = np.sum(X + Y) - I
+    U = np.sum(X + Y)
     return I/U
 
 
