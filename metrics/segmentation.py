@@ -1,35 +1,61 @@
 import numpy as np
 
 
-def IoU(X, Y):
-    X = X.astype(np.bool)
-    Y = Y.astype(np.bool)
-    I = np.sum(X * Y)
-    U = np.sum(X + Y)
+def precision(TRUE, PRED):
+    TRUE = TRUE.astype(np.bool)
+    PRED = PRED.astype(np.bool)
+
+    TP = np.sum(TRUE * PRED)
+    # TN = np.sum((1-TRUE) * (1-PRED))
+    FP = np.sum(PRED) - TP
+    # FN = np.sum(TRUE) - TP
+
+    return TP / (TP + FP)
+
+
+def recall(TRUE, PRED):
+    TRUE = TRUE.astype(np.bool)
+    PRED = PRED.astype(np.bool)
+
+    TP = np.sum(TRUE * PRED)
+    # TN = np.sum((1-TRUE) * (1-PRED))
+    # FP = np.sum(PRED) - TP
+    FN = np.sum(TRUE) - TP
+
+    return TP / (TP + FN)
+
+
+def iou(TRUE, PRED):
+    TRUE = TRUE.astype(np.bool)
+    PRED = PRED.astype(np.bool)
+    I = np.sum(TRUE * PRED)
+    U = np.sum(TRUE + PRED)
     return I/U
 
 
-def F1(X, Y):
-    X = X.astype(np.bool)
-    Y = Y.astype(np.bool)
-    I = np.sum(X * Y)
-    U = np.sum(X + Y)
+def f1(TRUE, PRED):
+    TRUE = TRUE.astype(np.bool)
+    PRED = PRED.astype(np.bool)
+    I = np.sum(TRUE * PRED)
+    U = np.sum(TRUE + PRED)
     return (2*I)/(U+I)
 
 
-def Phi(X, Y):
-    X = X.astype(np.bool)
-    Y = Y.astype(np.bool)
-    TP = np.sum(X * Y)
-    FP = np.sum(X) - TP
-    FN = np.sum(Y) - TP
-    TN = np.sum((1-X) * (1-Y))
+def phi(TRUE, PRED):
+    TRUE = TRUE.astype(np.bool)
+    PRED = PRED.astype(np.bool)
+    TP = np.sum(TRUE * PRED)
+    TN = np.sum((1-TRUE) * (1-PRED))
+    FP = np.sum(PRED) - TP
+    FN = np.sum(TRUE) - TP
 
     return (TP * TN + FP * FN) / np.sqrt((TP + FP) * (TP + FN) * (TN + FP) * (TN + FN))
 
 
-iou = IoU
-f1 = F1
-jaccard = IoU
-dice = F1
-MCC = Phi
+IoU = iou
+F1 = f1
+jaccard = iou
+dice = f1
+MCC = phi
+phi = phi
+Phi = phi
