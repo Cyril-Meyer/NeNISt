@@ -58,6 +58,8 @@ def gen_patch_2d_batch(patch_size, image, label, batch_size, augmentation, label
                 cla = randint(0, len(lbli)-1)
                 r = randint(0, len(lbli[cla])-1)
                 z, y, x = lbli[cla][r]
+                y = np.clip(y - (patch_size_y // 2), 0, img.shape[1] - patch_size_y)
+                x = np.clip(x - (patch_size_x // 2), 0, img.shape[2] - patch_size_x)
                 z, y, x = int(z), int(y), int(x)
             else:
                 x = randint(0, img.shape[2] - patch_size_x)
@@ -111,6 +113,9 @@ def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label
                 cla = randint(0, len(lbli)-1)
                 r = randint(0, len(lbli[cla])-1)
                 z, y, x = lbli[cla][r]
+                z = np.clip(z - (patch_size_z // 2), 0, img.shape[0] - patch_size_z)
+                y = np.clip(y - (patch_size_y // 2), 0, img.shape[1] - patch_size_y)
+                x = np.clip(x - (patch_size_x // 2), 0, img.shape[2] - patch_size_x)
                 z, y, x = int(z), int(y), int(x)
             else:
                 x = randint(0, img.shape[2] - patch_size_x)
