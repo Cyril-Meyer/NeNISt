@@ -1,9 +1,10 @@
 import argparse
 import tensorflow as tf
+import models.unet
 import loss.segmentation
 
 
-def args():
+def args_train():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("--images",
@@ -32,7 +33,7 @@ def args():
                         action="append",
                         default=[])
 
-    parser.add_argument("--save",
+    parser.add_argument("--save-folder",
                         help="save location",
                         type=str,
                         required=True)
@@ -41,8 +42,7 @@ def args():
                         help="patch size",
                         type=int,
                         nargs="+",
-                        required=True,
-                        choices=range(1, 4096))
+                        required=True)
 
     parser.add_argument("--batch-size",
                         help="batch size",
@@ -71,13 +71,26 @@ def args():
     parser.add_argument("--loss",
                         help="loss",
                         type=str,
-                        default="cce",
-                        choices=["cce", "bce", "dice", "dice-bce", "iou", "mse-dt"])
+                        default='Dice')
+
+    parser.add_argument("--activation",
+                        help="activation",
+                        type=str,
+                        default='sigmoid')
 
     parser.add_argument("--model",
                         help="model codename",
-                        type=str,
-                        default="unet")
+                        type=str)
+
+    parser.add_argument("--create-background",
+                        help="create-background",
+                        type=bool,
+                        default=False)
+
+    parser.add_argument("--multiple-outputs",
+                        help="multiple outputs",
+                        type=bool,
+                        default=False)
 
     parser.add_argument("--verbose",
                         help="verbose",
@@ -90,30 +103,119 @@ def args():
     return args
 
 
-def get_loss(args_loss):
-    if args_loss == 'cce':
+def args_eval():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--images",
+                        help="add image",
+                        type=str,
+                        action="append",
+                        required=True)
+
+    parser.add_argument("--labels",
+                        help="add labels",
+                        type=str,
+                        nargs="+",
+                        action="append",
+                        required=True)
+
+    parser.add_argument("--save-folder",
+                        help="save location",
+                        type=str,
+                        required=True)
+
+    parser.add_argument("--name-prefix",
+                        help="name prefix for results",
+                        type=str,
+                        default=None)
+
+    parser.add_argument("--load-model",
+                        help="model file",
+                        type=str,
+                        required=True)
+
+    parser.add_argument("--patch-size",
+                        help="patch size",
+                        type=int,
+                        nargs="+",
+                        default=None)
+
+    parser.add_argument("--binary-threshold",
+                        help="binary threshold",
+                        type=float,
+                        default=0.5)
+
+    parser.add_argument("--create-background",
+                        help="create-background",
+                        type=bool,
+                        default=False)
+
+    parser.add_argument("--multiple-outputs",
+                        help="multiple outputs",
+                        type=bool,
+                        default=False)
+
+    parser.add_argument("--verbose",
+                        help="verbose",
+                        type=bool,
+                        default=False)
+
+    args = parser.parse_args()
+    assert len(args.images) == len(args.labels) > 0
+    return args
+
+
+def get_model(args_model, output_classes, output_activation):
+    if args_model == 'unet2d-5-32':
+        return models.unet.get(input_shape=(      None, None, 1),
+                               output_classes=output_classes, output_activation=output_activation,
+                               filters=32, depth=5)
+    elif args_model == 'unet3d-4-38':
+        return models.unet.get(input_shape=(None, None, None, 1),
+                               output_classes=output_classes, output_activation=output_activation,
+                               filters=38, depth=4)
+    elif args_model == 'unet3d-5-19':
+        return models.unet.get(input_shape=(None, None, None, 1),
+                               output_classes=output_classes, output_activation=output_activation,
+                               filters=19, depth=5)
+    else:
+        raise NotImplementedError
+
+
+def get_loss(args_loss, args_activation):
+    if args_loss == 'Dice' and args_activation == 'softmax':
+        return loss.segmentation.dice_coef_multi_tf_meyer
+    elif args_loss == 'Dice' and args_activation == 'sigmoid':
+        return loss.segmentation.dice_coef_tf_meyer
+    elif args_loss == 'BinaryDice':
+        return loss.segmentation.dice_coef_tf_meyer
+    elif args_loss == 'bce' or args_loss == 'BinaryCrossentropy':
+        return tf.keras.losses.BinaryCrossentropy
+    elif args_loss == 'cce' or args_loss == 'CategoricalCrossentropy':
+        return tf.keras.losses.CategoricalCrossentropy
+    elif args_loss == 'MeanSquaredErrorsBoundaryDistance' and args_activation == 'tanh':
+        return tf.keras.losses.MeanSquaredError
+    else:
+        raise NotImplementedError
+    '''
+    elif args_loss == 'cce':
         loss_func = tf.keras.losses.CategoricalCrossentropy
         activation = 'softmax'
         multiple_outputs = False
         threshold = 0.5
     elif args_loss == 'bce':
         loss_func = tf.keras.losses.BinaryCrossentropy
-        activation = 'sigmoid'
-        multiple_outputs = True
-        threshold = 0.5
-    elif args_loss == 'dice':
-        loss_func = loss.segmentation.dice_loss_lars76
-        activation = 'sigmoid'
+        activation = 'softmax'
         multiple_outputs = True
         threshold = 0.5
     elif args_loss == 'dice-bce':
         loss_func = loss.segmentation.DiceBCELoss
-        activation = 'sigmoid'
+        activation = 'softmax'
         multiple_outputs = True
         threshold = 0.5
     elif args_loss == 'iou':
         loss_func = loss.segmentation.IoULoss
-        activation = 'sigmoid'
+        activation = 'softmax'
         multiple_outputs = True
         threshold = 0.5
     elif args_loss == 'mse-dt':
@@ -121,7 +223,5 @@ def get_loss(args_loss):
         activation = 'tanh'
         multiple_outputs = True
         threshold = 0.0
-    else:
-        raise NotImplementedError
+    '''
 
-    return loss_func, activation, multiple_outputs, threshold
