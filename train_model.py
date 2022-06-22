@@ -42,21 +42,28 @@ labels_id = datasets.reader.get_labels_id(labels)
 labels_validation_id = datasets.reader.get_labels_id(labels_validation)
 
 # label distance transform
-'''
-if '_dt' in args.loss:
-    log("DATA : Distance transform")
-    print(str(int(time.time() - t0)).rjust(10), "EDT DATA")
+if 'dt' in args.loss or 'BoundaryDistance' in args.loss:
     edt = data.distance_transform.label_edt
     normalize = data.distance_transform.normalize_tanh
+
+    log("DATA : Distance transform")
     labels_dt = []
     for label in labels:
         label_dt = []
-        for cla in label:
-            label_dt.append(normalize(edt((cla * 1.0).astype(np.float32)), 20))
-        labels_dt.append(label_dt)
-
+        for cla in range(label.shape[-1]):
+            label_dt.append(normalize(edt((label[..., cla] * 1.0).astype(np.float32)), 20))
+        labels_dt.append(np.moveaxis(np.array(label_dt), 0, -1))
     labels = labels_dt
-'''
+
+    log("DATA : Distance transform (valid)")
+    labels_dt = []
+    for label in labels_validation:
+        label_dt = []
+        for cla in range(label.shape[-1]):
+            label_dt.append(normalize(edt((label[..., cla] * 1.0).astype(np.float32)), 20))
+        labels_dt.append(np.moveaxis(np.array(label_dt), 0, -1))
+    labels_validation = labels_dt
+
 log("DATA : Ready")
 
 model = utils.parser.get_model(args.model, output_classes, activation)
