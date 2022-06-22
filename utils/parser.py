@@ -190,11 +190,11 @@ def get_loss(args_loss, args_activation):
     elif args_loss == 'BinaryDice':
         return loss.segmentation.dice_coef_tf_meyer
     elif args_loss == 'bce' or args_loss == 'BinaryCrossentropy':
-        return tf.keras.losses.BinaryCrossentropy
+        return tf.keras.losses.BinaryCrossentropy()
     elif args_loss == 'cce' or args_loss == 'CategoricalCrossentropy':
-        return tf.keras.losses.CategoricalCrossentropy
+        return tf.keras.losses.CategoricalCrossentropy()
     elif args_loss == 'MeanSquaredErrorsBoundaryDistance' and args_activation == 'tanh':
-        return tf.keras.losses.MeanSquaredError
+        return tf.keras.losses.MeanSquaredError()
     else:
         raise NotImplementedError
     '''
