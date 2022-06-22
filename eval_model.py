@@ -77,9 +77,12 @@ for i in range(len(images)):
 
 for i in range(len(images)):
     if args.name_prefix is None:
-        name = os.path.basename(args.images[i]).split('.')[0]
+        name = os.path.basename(args.images[i]).split('.')[0] + '_' + \
+               os.path.basename(args.load_model).split('.')[0]
     else:
-        name = args.name_prefix + os.path.basename(args.images[i]).split('.')[0]
+        name = args.name_prefix + '_' + \
+               os.path.basename(args.images[i]).split('.')[0] + '_' + \
+               os.path.basename(args.load_model).split('.')[0]
     log('name', name)
 
     file = open(f"{OUTPUT_FOLDER}/{name}.csv", "w")
