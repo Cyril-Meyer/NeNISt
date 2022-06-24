@@ -106,10 +106,9 @@ def gen_patch_3d_batch(patch_size, image, label, batch_size, augmentation, label
                 n = randint(0, len(image)-1)
                 img = image[n]
                 lbl = label[n]
-                if label_indexes is not None and label_indexes_prop > random():
+                if label_indexes is not None:
                     lbli = label_indexes[n]
-        
-            if label_indexes is not None:
+            if label_indexes is not None and label_indexes_prop > random():
                 cla = randint(0, len(lbli)-1)
                 r = randint(0, len(lbli[cla])-1)
                 z, y, x = lbli[cla][r]
