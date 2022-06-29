@@ -6,16 +6,23 @@ from tensorflow.keras.layers import Conv3D, Cropping3D, Conv3DTranspose, MaxPool
 from tensorflow.keras.layers import Activation, BatchNormalization, Dropout, Concatenate, Add
 
 
-def block_2d(X, filters, batch_normalization=True, residual=True, dropout=0):
+def block_2d(X, filters, batch_normalization=True, residual=True, dropout=0, bottlenecks=False):
+    if bottlenecks:
+        filters_out = filters
+    else:
+        filters_out = 2*filters
     if residual:
-        res = Conv2D(filters=2*filters, kernel_size=1)(X)
+        res = Conv2D(filters=filters_out, kernel_size=1)(X)
+        if batch_normalization:
+            res = BatchNormalization()(res)
 
-    X = Conv2D(filters=filters, kernel_size=3, kernel_initializer="he_normal", padding='same')(X)
+    X = Conv2D(filters=filters, kernel_size=3, padding='same')(X)
     if batch_normalization:
         X = BatchNormalization()(X)
     X = Activation('relu')(X)
 
-    X = Conv2D(filters=2*filters, kernel_size=3, kernel_initializer="he_normal", padding='same')(X)
+    X = Conv2D(filters=filters_out, kernel_size=3, padding='same')(X)
+
     if batch_normalization:
         X = BatchNormalization()(X)
     if residual:
@@ -28,16 +35,23 @@ def block_2d(X, filters, batch_normalization=True, residual=True, dropout=0):
     return X
 
 
-def block_3d(X, filters, batch_normalization=True, residual=True, dropout=0):
+def block_3d(X, filters, batch_normalization=True, residual=True, dropout=0, bottlenecks=False):
+    if bottlenecks:
+        filters_out = filters
+    else:
+        filters_out = 2*filters
     if residual:
-        res = Conv3D(filters=2*filters, kernel_size=1)(X)
+        res = Conv3D(filters=filters_out, kernel_size=1)(X)
+        if batch_normalization:
+            res = BatchNormalization()(res)
 
-    X = Conv3D(filters=filters, kernel_size=3, kernel_initializer="he_normal", padding='same')(X)
+    X = Conv3D(filters=filters, kernel_size=3, padding='same')(X)
     if batch_normalization:
         X = BatchNormalization()(X)
     X = Activation('relu')(X)
 
-    X = Conv3D(filters=2*filters, kernel_size=3, kernel_initializer="he_normal", padding='same')(X)
+    X = Conv3D(filters=filters_out, kernel_size=3, padding='same')(X)
+
     if batch_normalization:
         X = BatchNormalization()(X)
     if residual:
@@ -51,7 +65,7 @@ def block_3d(X, filters, batch_normalization=True, residual=True, dropout=0):
 
 
 def get(input_shape=(None, None, 1), output_classes=2, output_activation='sigmoid', filters=32, depth=5,
-        batch_normalization=True, residual=True, multiple_outputs=False):
+        batch_normalization=True, residual=True, multiple_outputs=False, name='model'):
 
     assert len(input_shape) == 3 or len(input_shape) == 4
 
@@ -93,7 +107,7 @@ def get(input_shape=(None, None, 1), output_classes=2, output_activation='sigmoi
     else:
         outputs = Conv(output_classes, 1, activation=output_activation, name="output")(X)
 
-    model = tf.keras.Model(inputs=inputs, outputs=outputs)
+    model = tf.keras.Model(inputs=inputs, outputs=outputs, name=name)
 
     return model
 
