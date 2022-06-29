@@ -66,7 +66,7 @@ if 'dt' in args.loss or 'BoundaryDistance' in args.loss:
 
 log("DATA : Ready")
 
-model = utils.parser.get_model(args.model, output_classes, activation)
+model = utils.parser.get_model(args.model, output_classes, activation, name=args.model)
 log("MODEL :", model.input_shape, "->", model.output_shape)
 log("MODEL :", model.name, f"{model.count_params():,}")
 log("MODEL :", activation, loss)
