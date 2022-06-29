@@ -86,10 +86,11 @@ for i in range(len(images)):
     log('name', name)
 
     file = open(f"{OUTPUT_FOLDER}/{name}.csv", "w")
-    file.write("name,")
+    file.write("name,model,data,")
     for c in range(predictions[i].shape[-1]):
         file.write(f'precision_{c+1},recall_{c+1},f1_{c+1},iou_{c+1},assd_{c+1}\n')
-    file.write(f'{name},')
+    data_name = os.path.basename(args.images[i]).split('.')[0]
+    file.write(f'{name},{model.name},{data_name},')
 
     prediction = predictions[i] > args.binary_threshold
     label = labels[i] > 0.5
@@ -99,7 +100,12 @@ for i in range(len(images)):
         recall    = metrics.segmentation.recall(label.flatten(), prediction.flatten())
         f1        = metrics.segmentation.F1(label.flatten(), prediction.flatten())
         iou       = metrics.segmentation.IoU(label.flatten(), prediction.flatten())
-        assd      = medpy.metric.binary.assd(label, prediction)
+        assd = np.inf
+        try:
+            assd  = medpy.metric.binary.assd(label, prediction)
+        except:
+            assd = np.inf
+        
         # precision = sklearn.metrics.precision_score(label.flatten(), prediction.flatten())
         # recall    = sklearn.metrics.recall_score(label.flatten(), prediction.flatten())
         # f1        = sklearn.metrics.f1_score(label.flatten(), prediction.flatten())
