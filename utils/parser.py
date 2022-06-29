@@ -165,19 +165,19 @@ def args_eval():
     return args
 
 
-def get_model(args_model, output_classes, output_activation):
+def get_model(args_model, output_classes, output_activation, name):
     if args_model == 'unet2d-5-32':
         return models.unet.get(input_shape=(      None, None, 1),
                                output_classes=output_classes, output_activation=output_activation,
-                               filters=32, depth=5)
+                               filters=32, depth=5, name=name)
     elif args_model == 'unet3d-4-38':
         return models.unet.get(input_shape=(None, None, None, 1),
                                output_classes=output_classes, output_activation=output_activation,
-                               filters=38, depth=4)
+                               filters=38, depth=4, name=name)
     elif args_model == 'unet3d-5-19':
         return models.unet.get(input_shape=(None, None, None, 1),
                                output_classes=output_classes, output_activation=output_activation,
-                               filters=19, depth=5)
+                               filters=19, depth=5, name=name)
     else:
         raise NotImplementedError
 
